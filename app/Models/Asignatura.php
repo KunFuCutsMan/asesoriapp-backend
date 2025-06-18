@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Asignatura extends Model
 {
-    protected $table = 'carrera';
+    protected $table = 'asignatura';
     protected $primaryKey = 'id';
     public $timestamps = false;
 
@@ -15,6 +15,6 @@ class Asignatura extends Model
 
     public function carreras(): BelongsToMany
     {
-        return $this->belongsToMany(Carrera::class, 'carrera-asignatura', 'carreraID', 'asignaturaID');
+        return $this->belongsToMany(Carrera::class, 'carrera-asignatura', 'asignaturaID', 'carreraID');
     }
 }

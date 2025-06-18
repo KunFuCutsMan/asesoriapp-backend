@@ -14,6 +14,6 @@ class Carrera extends Model
 
     public function asignaturas(): BelongsToMany
     {
-        return $this->belongsToMany(Asignatura::class, 'carrera-asignatura', 'asignaturaID', 'carreraID');
+        return $this->belongsToMany(Asignatura::class, 'carrera-asignatura', 'carreraID', 'asignaturaID');
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
         Schema::create('carrera-asignatura', function (Blueprint $table) {
             $table->foreignId('carreraID')->references('id')->on('carrera');
             $table->foreignId('asignaturaID')->references('id')->on('asignatura');
+            $table->tinyInteger('semestre', false, true);
         });
     }
 

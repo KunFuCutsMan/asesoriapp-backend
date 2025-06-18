@@ -11,7 +11,7 @@ class CarrerasTest extends TestCase
      */
     public function test_Carreras_Index_Route(): void
     {
-        $resp = $this->get('/api/carreras');
+        $resp = $this->get('/api/v1/carreras');
 
         $resp->assertOk();
         $resp->assertJsonIsArray();
@@ -26,7 +26,7 @@ class CarrerasTest extends TestCase
 
     public function test_Carreras_Show_Route(): void
     {
-        $resp = $this->get('api/carreras/6');
+        $resp = $this->get('api/v1/carreras/6');
 
         $resp->assertOk();
         $resp->assertJsonIsObject();

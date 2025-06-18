@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 */
 
-Route::resource('carreras', CarreraController::class)->only([
+Route::resource('v1/carreras', CarreraController::class)->only([
     'index',
     'show'
 ]);

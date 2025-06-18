@@ -15,7 +15,7 @@ class CarreraAsignaturaSeeder extends Seeder
     {
         foreach ($this->carreras as $carrera) {
             DB::table('carrera')->insert([
-                'nombreAsesoria' => $carrera[0],
+                'nombre' => $carrera[0],
                 'codigo' => $carrera[1],
             ]);
         }

@@ -13,8 +13,6 @@ class CarrerasTest extends TestCase
     {
         $resp = $this->get('/api/carreras');
 
-        $resp->dump();
-
         $resp->assertOk();
         $resp->assertJsonIsArray();
         $resp->assertJsonStructure([
@@ -24,5 +22,20 @@ class CarrerasTest extends TestCase
                 'codigo',
             ]
         ]);
+    }
+
+    public function test_Carreras_Show_Route(): void
+    {
+        $resp = $this->get('api/carreras/6');
+
+        $resp->assertOk();
+        $resp->assertJsonIsObject();
+        $resp->assertJsonStructure([
+            'id',
+            'nombre',
+            'codigo'
+        ]);
+
+        $this->assertStringContainsString("Mecatrónica", $resp["nombre"]);
     }
 }

@@ -15,17 +15,17 @@ class AsignaturaController extends Controller
     {
         if ($carreraID = $request->query('carreraID')) {
 
-            if (!is_numeric($carreraID)) {
-                return response()->json(null, 400);
-            }
+            if (!is_numeric($carreraID)) return response()->json(null, 400);
 
             $carrera = Carrera::find($carreraID);
 
-            if (!$carrera) {
-                return response()->json(null, 404);
-            }
+            if (!$carrera) return response()->json(null, 404);
 
-            $asignaturas = $carrera->asignaturas()->get();
+            $asignaturas = $carrera
+                ->asignaturas()
+                ->orderByPivot('semestre')
+                ->get();
+
             return response()->json($asignaturas);
         } else {
             return response()->json(Asignatura::all());

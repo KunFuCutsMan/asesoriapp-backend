@@ -40,6 +40,11 @@ class AsignaturasTest extends TestCase
             '*' => [
                 'id',
                 'nombre',
+                'pivot' => [
+                    'carreraID',
+                    'asignaturaID',
+                    'semestre'
+                ]
             ]
         ]);
     }

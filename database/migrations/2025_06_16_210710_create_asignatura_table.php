@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asignatura', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 32);
+            $table->string('nombre', 64);
         });
 
         Schema::create('carrera-asignatura', function (Blueprint $table) {

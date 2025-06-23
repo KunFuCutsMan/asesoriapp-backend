@@ -24,7 +24,7 @@ class EstudianteFactory extends Factory
     {
         return [
             'numeroControl' => strval(fake()->randomNumber(8, true)),
-            'contrasena' => static::$password ??= Hash::make('password'),
+            'contrasena' => static::$password ??= Hash::make(fake()->password(10)),
             'nombre' => fake()->firstName(),
             'apellidoPaterno' => fake()->lastName(),
             'apellidoMaterno' => fake()->lastName(),

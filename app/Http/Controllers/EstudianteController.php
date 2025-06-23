@@ -27,12 +27,12 @@ class EstudianteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8|unique:estudiante,numeroControl',
+            'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8|unique:estudiante',
             'contrasena' => ['required', 'confirmed', Password::defaults()],
             'nombre' => 'required|string|alpha|max:32',
             'apellidoPaterno' => 'required|string|alpha|max:32',
             'apellidoMaterno' => 'required|string|alpha|max:32',
-            'numeroTelefono' => 'required',
+            'numeroTelefono' => 'required|integer|min_digits:10|max_digits:10',
             'semestre' => 'numeric|integer|gt:0',
             'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')]
         ]);
@@ -44,6 +44,7 @@ class EstudianteController extends Controller
             'apellidoPaterno' => $request->input('apellidoPaterno'),
             'apellidoMaterno' => $request->input('apellidoMaterno'),
             'semestre' => $request->input('semestre', 1),
+            'numeroTelefono' => $request->input('numeroTelefono'),
             'carreraID' => $request->input('carreraID')
         ]);
 

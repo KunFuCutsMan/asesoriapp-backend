@@ -2,10 +2,14 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CarrerasTest extends TestCase
 {
+    use RefreshDatabase;
+    protected $seed = true;
+
     /**
      * A basic unit test example.
      */

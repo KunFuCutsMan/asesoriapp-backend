@@ -6,7 +6,6 @@ use App\Models\Estudiante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -22,7 +21,22 @@ class LoginController extends Controller
             return response(null, 400);
         }
 
+        return $this->creaToken($estudiante);
+    }
+
+    private function creaToken(Estudiante $estudiante)
+    {
+        $abilidades = [];
+
+        if ($asesor = $estudiante->asesor) {
+            array_push($abilidades, 'role:asesor');
+
+            if ($asesor->admin) {
+                array_push($abilidades, 'role:admin');
+            }
+        }
+
         $nombre = $estudiante->nombre . $estudiante->apellidoPaterno . $estudiante->apeellidoMaterno;
-        return $estudiante->createToken($nombre)->plainTextToken;
+        return $estudiante->createToken($nombre, $abilidades)->plainTextToken;
     }
 }

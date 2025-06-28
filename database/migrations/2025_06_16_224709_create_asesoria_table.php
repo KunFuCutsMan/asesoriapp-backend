@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('estudianteID')->references('id')->on('estudiante');
             $table->foreignId('carreraID')->references('carreraID')->on('carrera-asignatura');
             $table->foreignId('asignaturaID')->references('asignaturaID')->on('carrera-asignatura');
-            $table->foreignId('asesorID')->references('id')->on('asesor');
+            $table->foreignId('asesorID')->nullable()->references('id')->on('asesor');
         });
     }
 

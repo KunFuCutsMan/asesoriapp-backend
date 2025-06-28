@@ -24,7 +24,7 @@ class LoginController extends Controller
         return $this->creaToken($estudiante);
     }
 
-    private function creaToken(Estudiante $estudiante)
+    public static function creaToken(Estudiante $estudiante)
     {
         $abilidades = [];
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asesoria;
 use App\Rules\DateIsAfter;
 use App\Rules\IDExistsInTable;
 use Illuminate\Http\Request;
@@ -29,6 +30,22 @@ class AsesoriaController extends Controller
             'horaInicial' => 'required|date_format:H:i',
             'horaFinal' => 'required|date_format:H:i|after:horaInicial'
         ]);
+
+        $estudiante = $request->user();
+
+        $asesoria = new Asesoria([
+            'diaAsesoria' => $request->date('diaAsesoria'),
+            'carreraID' => $request->input('carreraID'),
+            'asignaturaID' => $request->input('asignaturaID'),
+            'horaInicial' => $request->input('horaInicial'),
+            'horaFinal' => $request->input('horaFinal'),
+            'estudianteID' => $estudiante->id,
+        ]);
+
+        $asesoria->save();
+        $asesoria->refresh();
+
+        return $asesoria;
     }
 
     /**

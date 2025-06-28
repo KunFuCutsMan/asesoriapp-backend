@@ -13,6 +13,17 @@ class Asesoria extends Model
     protected $primaryKey = 'id';
     public $timestamps = false;
 
+    protected $fillable = [
+        'diaAsesoria',
+        'horaInicial',
+        'horaFinal',
+        'estadoAsesoria',
+        'estudianteID',
+        'carreraID',
+        'asignaturaID',
+        'asesorID',
+    ];
+
     public function estudiante(): BelongsTo
     {
         return $this->belongsTo(Estudiante::class, 'estudianteID');

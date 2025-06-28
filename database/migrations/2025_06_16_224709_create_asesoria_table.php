@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('diaAsesoria');
             $table->time('horaInicial', 0);
             $table->time('horaFinal', 0);
-            $table->tinyInteger('estadoAsesoria')->comment('Estado actual de la asesoria. 0: No hecha, 1: En progreso, 2: Terminada, 3: Cancelada');
+            $table->tinyInteger('estadoAsesoria')->comment('Estado actual de la asesoria. 0: No hecha, 1: En progreso, 2: Terminada, 3: Cancelada')->default(0);
 
             $table->foreignId('estudianteID')->references('id')->on('estudiante');
             $table->foreignId('carreraID')->references('carreraID')->on('carrera-asignatura');

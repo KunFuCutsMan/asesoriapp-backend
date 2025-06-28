@@ -2,25 +2,22 @@
 
 namespace Tests\Feature;
 
+use DateInterval;
+use DateTimeImmutable;
 use App\Http\Controllers\LoginController;
 use App\Models\Estudiante;
-use DateInterval;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AsesoriaTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
+    use RefreshDatabase;
+    protected $seed = true;
+
     public function test_store_asesoria_como_estudiante(): void
     {
         $estudiante = Estudiante::factory()->create();
+        $estudiante->refresh();
         $token = LoginController::creaToken($estudiante);
 
         $inicio = new DateTimeImmutable('now');
@@ -36,6 +33,19 @@ class AsesoriaTest extends TestCase
                 'horaFinal' => $final->format("H:i"),
             ]);
 
-        $response->assertOk();
+        $response->assertSuccessful();
+        $this->assertDatabaseCount('asesoria', 1);
+
+        $response->assertJsonStructure([
+            'id',
+            'diaAsesoria',
+            'horaInicial',
+            'horaFinal',
+            'estudianteID',
+            'estadoAsesoria'
+        ]);
+
+        $this->assertEquals($estudiante->id, $response['estudianteID']);
+        $this->assertEquals(0, $response['estadoAsesoria']);
     }
 }

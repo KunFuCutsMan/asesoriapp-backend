@@ -29,9 +29,9 @@ class EstudianteController extends Controller
         $request->validate([
             'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8|unique:estudiante',
             'contrasena' => ['required', 'confirmed', Password::defaults()],
-            'nombre' => 'required|string|alpha|max:32',
-            'apellidoPaterno' => 'required|string|alpha|max:32',
-            'apellidoMaterno' => 'required|string|alpha|max:32',
+            'nombre' => 'required|string|max:32',
+            'apellidoPaterno' => 'required|string|max:32',
+            'apellidoMaterno' => 'required|string|max:32',
             'numeroTelefono' => 'required|integer|min_digits:10|max_digits:10',
             'semestre' => 'numeric|integer|gt:0',
             'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')]

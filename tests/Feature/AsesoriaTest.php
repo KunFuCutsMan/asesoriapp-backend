@@ -6,6 +6,7 @@ use DateInterval;
 use DateTimeImmutable;
 use App\Http\Controllers\LoginController;
 use App\Models\Estudiante;
+use DateTimeZone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,7 +21,8 @@ class AsesoriaTest extends TestCase
         $estudiante->refresh();
         $token = LoginController::creaToken($estudiante);
 
-        $inicio = new DateTimeImmutable('now');
+        $zone = new DateTimeZone('America/Mexico_City');
+        $inicio = new DateTimeImmutable('now', $zone);
         $final = $inicio->add(new DateInterval('PT1H'));
 
         $response = $this

@@ -72,7 +72,48 @@ class EstudianteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $estudiante = Estudiante::find($id);
+        if (!$estudiante) {
+            abort(404); // No se encontro el estudiante
+        }
+
+        if ($request->user()->id != $id) {
+            abort(403); // No se puede editar otro usuario
+        }
+
+        if ($request->user()->id != $id && $request->user()->tokenCant('role:admin')) {
+            abort(403); // Si no eres admin no puedes editar otros usuarios
+        }
+
+        $fields = $request->validate([
+            'numeroControl' => 'string|integer|min_digits:8|max_digits:8|unique:estudiante',
+            'contrasena' => ['confirmed', Password::defaults()],
+            'nombre' => 'string|max:32',
+            'apellidoPaterno' => 'string|max:32',
+            'apellidoMaterno' => 'string|max:32',
+            'numeroTelefono' => 'integer|min_digits:10|max_digits:10',
+            'semestre' => 'numeric|integer|gt:0',
+            'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')]
+        ]);
+
+        $modificable = [
+            'numeroControl',
+            'nombre',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'semestre',
+            'carreraID'
+        ];
+
+        foreach ($modificable as $key) {
+            if (array_key_exists($key, $fields)) {
+                $estudiante->{$key} = $fields[$key];
+            }
+        }
+
+        $estudiante->save();
+        $estudiante->refresh();
+        return response()->json($estudiante);
     }
 
     /**

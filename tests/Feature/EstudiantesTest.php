@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Estudiante;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class EstudiantesTest extends TestCase
@@ -34,5 +35,26 @@ class EstudiantesTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertDatabaseCount('estudiante', 1);
+    }
+
+    public function test_Estudiante_es_editable_por_si_mismo(): void
+    {
+        $estudiante = Estudiante::factory()->create();
+        $estudiante->refresh();
+
+        Sanctum::actingAs($estudiante);
+
+        $route = '/api/v1/estudiante/' . ($estudiante->id);
+        $response = $this->patch($route, [
+            'numeroControl' => '12345678',
+            'nombre' => 'Juan',
+            'apellidoPaterno' => 'Camanei',
+            'apellidoMaterno' => 'Ramirez',
+            'numeroTelefono' => '2290000012',
+            'semestre' => 3,
+            'carreraID' => 3,
+        ]);
+
+        $response->assertSuccessful();
     }
 }

@@ -39,13 +39,7 @@ class EstudiantesTest extends TestCase
 
     public function test_Estudiante_es_editable_por_si_mismo(): void
     {
-        $estudiante = Estudiante::factory()->create();
-        $estudiante->refresh();
-
-        Sanctum::actingAs($estudiante);
-
-        $route = '/api/v1/estudiante/' . ($estudiante->id);
-        $response = $this->patch($route, [
+        $modificado = [
             'numeroControl' => '12345678',
             'nombre' => 'Juan',
             'apellidoPaterno' => 'Camanei',
@@ -53,8 +47,35 @@ class EstudiantesTest extends TestCase
             'numeroTelefono' => '2290000012',
             'semestre' => 3,
             'carreraID' => 3,
+        ];
+
+        $estudiante = Estudiante::factory()->create();
+        $estudiante->refresh();
+
+        Sanctum::actingAs($estudiante);
+
+        $route = '/api/v1/estudiante/' . ($estudiante->id);
+        $response = $this->patch($route, [
+            'numeroControl' => $modificado['numeroControl'],
+            'nombre' => $modificado['nombre'],
+            'apellidoPaterno' => $modificado['apellidoPaterno'],
+            'apellidoMaterno' => $modificado['apellidoMaterno'],
+            'numeroTelefono' => $modificado['numeroTelefono'],
+            'semestre' => $modificado['semestre'],
+            'carreraID' => $modificado['carreraID'],
         ]);
 
         $response->assertSuccessful();
+        $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'nombre',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'numeroControl',
+            'numeroTelefono',
+            'semestre',
+            'carreraID'
+        ]);
+        $response->assertJsonMissingPath('contrasena');
     }
 }

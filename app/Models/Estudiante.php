@@ -35,6 +35,13 @@ class Estudiante extends Model implements Authenticatable
         'carreraID',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<string>
+     */
+    protected $hidden = ['contrasena'];
+
     public function contrasena(): Attribute
     {
         return Attribute::make(

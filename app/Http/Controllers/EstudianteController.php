@@ -113,7 +113,7 @@ class EstudianteController extends Controller
 
         $estudiante->save();
         $estudiante->refresh();
-        return response()->json($estudiante);
+        return $estudiante;
     }
 
     /**

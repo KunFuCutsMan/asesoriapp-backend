@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asesoria;
-use App\Rules\DateIsAfter;
 use App\Rules\IDExistsInTable;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AsesoriaController extends Controller
 {
@@ -53,7 +51,8 @@ class AsesoriaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $asesoria = Asesoria::find($id);
+        return $asesoria;
     }
 
     /**

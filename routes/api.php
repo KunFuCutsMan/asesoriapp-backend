@@ -26,7 +26,11 @@ Route::prefix('v1')->group(function () {
         'show',
     ]);
 
-    Route::apiResource('/estudiante', EstudianteController::class);
+    Route::apiResource('/estudiante', EstudianteController::class)
+        ->middlewareFor(
+            ['index', 'show', 'update', 'destroy'],
+            'auth:sanctum'
+        );
 
     Route::apiResource('/asesoria', AsesoriaController::class)
         ->middleware('auth:sanctum');

@@ -77,5 +77,14 @@ class EstudiantesTest extends TestCase
             'carreraID'
         ]);
         $response->assertJsonMissingPath('contrasena');
+
+        // ¿Se modificó el estudiante?
+        $estudiante->refresh();
+        $body = $response->getData(true);
+
+        foreach ($modificado as $key => $value) {
+            $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
+            $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
+        }
     }
 }

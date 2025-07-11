@@ -101,6 +101,7 @@ class EstudianteController extends Controller
             'nombre',
             'apellidoPaterno',
             'apellidoMaterno',
+            'numeroTelefono',
             'semestre',
             'carreraID'
         ];

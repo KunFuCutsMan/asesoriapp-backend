@@ -77,12 +77,12 @@ class EstudianteController extends Controller
             abort(404); // No se encontro el estudiante
         }
 
-        if ($request->user()->id != $id) {
-            abort(403); // No se puede editar otro usuario
-        }
-
-        if ($request->user()->id != $id && $request->user()->tokenCant('role:admin')) {
-            abort(403); // Si no eres admin no puedes editar otros usuarios
+        $idProvidedIsSame = $request->user()->id == $id;
+        $isAdmin = $request->user()->tokenCan('role:admin');
+        if (!$idProvidedIsSame && !$isAdmin) {
+            abort(403);
+            // No se puede editar otro usuario
+            // Si no eres admin no puedes editar otros usuarios
         }
 
         $fields = $request->validate([
@@ -93,7 +93,7 @@ class EstudianteController extends Controller
             'apellidoMaterno' => 'string|max:32',
             'numeroTelefono' => 'integer|min_digits:10|max_digits:10',
             'semestre' => 'numeric|integer|gt:0',
-            'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')]
+            'carreraID' => ['numeric', 'integer', new IDExistsInTable('carrera')]
         ]);
 
         $modificable = [

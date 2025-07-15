@@ -134,4 +134,22 @@ class EstudiantesTest extends TestCase
             $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
         }
     }
+
+    public function test_Estudiante_obtiene_su_informacion_por_token(): void
+    {
+        $estudiante = Estudiante::factory()->create();
+        $estudiante->refresh();
+
+        Sanctum::actingAs($estudiante);
+
+        $response = $this->get('/api/v1/estudiante/by-token');
+        $response->assertOk();
+        $response->assertJsonIsObject();
+
+        $body = $response->getData(true);
+        foreach ($body as $key => $value) {
+            $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
+            $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
+        }
+    }
 }

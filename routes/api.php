@@ -5,6 +5,7 @@ use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\LoginController;
+use App\Models\Estudiante;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +27,8 @@ Route::prefix('v1')->group(function () {
         'show',
     ]);
 
+    Route::get('/estudiante/by-token/', [EstudianteController::class, 'showByToken'])
+        ->middleware('auth:sanctum');
     Route::apiResource('/estudiante', EstudianteController::class)
         ->middlewareFor(
             ['index', 'show', 'update', 'destroy'],

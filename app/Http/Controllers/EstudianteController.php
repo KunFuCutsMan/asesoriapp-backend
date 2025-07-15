@@ -67,6 +67,15 @@ class EstudianteController extends Controller
         return response()->json($estudiante);
     }
 
+    public function showByToken(Request $request)
+    {
+        $estudiante = $request->user();
+
+        if ($estudiante == null) abort(404);
+
+        return response()->json($estudiante);
+    }
+
     /**
      * Update the specified resource in storage.
      */

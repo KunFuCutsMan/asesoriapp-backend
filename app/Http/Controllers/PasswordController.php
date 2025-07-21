@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Estudiante;
+use App\Notifications\SendPasswordReset;
 use Illuminate\Http\Request;
 
 class PasswordController extends Controller
@@ -21,6 +22,10 @@ class PasswordController extends Controller
         ])->get();
 
         if ($estudiante == null) abort(404);
+
+        $code = "asasa";
+
+        $estudiante->notify((new SendPasswordReset($estudiante, $code))->afterCommit());
 
         return response()->json();
     }

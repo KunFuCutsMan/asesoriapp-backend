@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('password_code', function (Blueprint $table) {
             $table->id();
             $table->string('code', 6);
-            $table->timestamp('created_at');
-            $table->timestamp('used_at')->nullable();
+            $table->timestamps();
+            $table->boolean('used')->default(false);
 
             $table->foreignId('estudianteID')->references('id')->on('estudiante');
         });

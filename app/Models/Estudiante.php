@@ -161,6 +161,6 @@ class Estudiante extends Model implements Authenticatable
      */
     public function routeNotificationForVonage(Notification $notification): string
     {
-        return $this->numeroTelefono;
+        return '52' . $this->numeroTelefono;
     }
 }

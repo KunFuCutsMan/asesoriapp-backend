@@ -46,18 +46,25 @@ class PasswordController extends Controller
             'contrasena' => ['required', 'confirmed', Password::default()]
         ]);
 
-
         /** @var Estudiante */
         $estudiante = Estudiante::where([
             'numeroControl' => $request->input('numeroControl'),
             'numeroTelefono' => $request->input('numeroTelefono'),
         ])->firstOrFail();
 
+        // Revisa si el codigo activo es el mismo enviado
+        $passwordCode = $estudiante->activePasswordCode;
+        if ($passwordCode == null) abort(404); // NO se encontró
+        if ($passwordCode->code != $request->input('code')) abort(400); // Ese no es
+
         $estudiante->forceFill([
             // Al hacer el set se realiza un hash
             'contrasena' => $request->input('contrasena')
         ]);
         $estudiante->save();
+
+        $passwordCode->used = true;
+        $passwordCode->save();
 
         return response(null, 200);
     }

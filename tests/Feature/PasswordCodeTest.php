@@ -55,7 +55,9 @@ class PasswordCodeTest extends TestCase
     public function test_estudiante_utiliza_password_reset_code(): void
     {
         /** @var PasswordCode */
-        $passwordCode = PasswordCode::factory()->create();
+        $passwordCode = PasswordCode::factory()->state([
+            'created_at' => now()->subMinutes(3) // Apenas le llegó el mensaje
+        ])->create();
         /** @var Estudiante */
         $estudiante = $passwordCode->estudiante;
         $contrasena = '1234asdF';
@@ -89,5 +91,72 @@ class PasswordCodeTest extends TestCase
             'contrasena' => $contrasena,
         ]);
         $correctLoginResponse->assertOk();
+    }
+
+    public function test_estudiante_no_puede_utilizar_codigo_expirado(): void
+    {
+        /** @var PasswordCode */
+        $passwordCode = PasswordCode::factory()->state([
+            'created_at' => now()->subMinutes(20) // Expiró hace 20 minutos
+        ])->create();
+        $estudiante = $passwordCode->estudiante;
+        $contrasena = '1234asdF';
+
+        $this->assertModelExists($passwordCode);
+        $this->assertModelExists($estudiante);
+
+        // El estudiante se le olvida su contraseña
+        $wrongLoginResponse = $this->post('api/v1/sanctum/token', [
+            'numeroControl' => $estudiante->numeroControl,
+            'contrasena' => $contrasena,
+        ]);
+        $wrongLoginResponse->assertClientError();
+
+        // Solicita una nueva contraseña
+
+        // No se puede utilizar el codigo porque expiró
+        $newPasswordResponse = $this->patch('api/v1/password', [
+            'numeroControl' => $estudiante->numeroControl,
+            'numeroTelefono' => $estudiante->numeroTelefono,
+            'code' => $passwordCode->code,
+            'contrasena' => $contrasena,
+            'contrasena_confirmation' => $contrasena,
+        ]);
+
+        $newPasswordResponse->assertClientError();
+    }
+
+    public function test_estudiante_no_puede_utilizar_codigo_utilizado(): void
+    {
+        /** @var PasswordCode */
+        $passwordCode = PasswordCode::factory()->state([
+            'created_at' => now()->subMinutes(3),
+            'used' => true,
+        ])->create();
+        $estudiante = $passwordCode->estudiante;
+        $contrasena = '1234asdF';
+
+        $this->assertModelExists($passwordCode);
+        $this->assertModelExists($estudiante);
+
+        // El estudiante se le olvida su contraseña
+        $wrongLoginResponse = $this->post('api/v1/sanctum/token', [
+            'numeroControl' => $estudiante->numeroControl,
+            'contrasena' => $contrasena,
+        ]);
+        $wrongLoginResponse->assertClientError();
+
+        // Solicita una nueva contraseña
+
+        // No se puede utilizar el codigo porque expiró
+        $newPasswordResponse = $this->patch('api/v1/password', [
+            'numeroControl' => $estudiante->numeroControl,
+            'numeroTelefono' => $estudiante->numeroTelefono,
+            'code' => $passwordCode->code,
+            'contrasena' => $contrasena,
+            'contrasena_confirmation' => $contrasena,
+        ]);
+
+        $newPasswordResponse->assertClientError();
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -66,6 +68,18 @@ class Estudiante extends Model implements Authenticatable
     public function passwordCode(): HasOne
     {
         return $this->hasOne(PasswordCode::class, 'estudianteID')->latestOfMany();
+    }
+
+    function activePasswordCode(): HasOne
+    {
+        return $this->hasOne(PasswordCode::class, 'estudianteID')->ofMany([
+            'created_at' => 'max',
+            'id' => 'max'
+        ], function (EloquentBuilder $query) {
+            $query
+                ->where('created_at', '>', now()->subMinutes(10))
+                ->where('used', '==', false);
+        });
     }
 
     /** Authenticatable Contract */

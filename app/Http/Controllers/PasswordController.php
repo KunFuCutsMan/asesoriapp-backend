@@ -32,7 +32,7 @@ class PasswordController extends Controller
         $passwordCode->save();
 
         $estudiante->notify((new SendPasswordReset($code))->afterCommit());
-        return response();
+        return response()->json();
     }
 
     private function generateCode(): string

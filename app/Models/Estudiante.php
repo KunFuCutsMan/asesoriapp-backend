@@ -65,7 +65,7 @@ class Estudiante extends Model implements Authenticatable
 
     public function passwordCode(): HasOne
     {
-        return $this->hasOne(PasswordCode::class)->latestOfMany();
+        return $this->hasOne(PasswordCode::class, 'estudianteID')->latestOfMany();
     }
 
     /** Authenticatable Contract */

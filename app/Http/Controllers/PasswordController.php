@@ -5,11 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Estudiante;
 use App\Models\PasswordCode;
 use App\Notifications\SendPasswordReset;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password as FacadesPassword;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
@@ -37,13 +33,12 @@ class PasswordController extends Controller
         return response()->json();
     }
 
-    public function resetPassword(Request $request)
+    public function verifyPasswordCode(Request $request)
     {
         $request->validate([
             'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8',
             'numeroTelefono' => 'required|integer|min_digits:10|max_digits:10',
             'code' => 'required|string|integer|min_digits:6|max_digits:6',
-            'contrasena' => ['required', 'confirmed', Password::default()]
         ]);
 
         /** @var Estudiante */
@@ -52,10 +47,30 @@ class PasswordController extends Controller
             'numeroTelefono' => $request->input('numeroTelefono'),
         ])->firstOrFail();
 
-        // Revisa si el codigo activo es el mismo enviado
-        $passwordCode = $estudiante->activePasswordCode;
-        if ($passwordCode == null) abort(404); // NO se encontró
-        if ($passwordCode->code != $request->input('code')) abort(400); // Ese no es
+        $this->revisaCodigoDeUsuario($estudiante, $request->input('code'));
+
+        return $estudiante->createToken('passwordReset', ['password:reset'], now()->addMinutes(5))->plainTextToken;
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|integer|min_digits:6|max_digits:6',
+            'contrasena' => ['required', 'confirmed', Password::default()]
+        ]);
+
+        /** @var Estudiante */
+        $estudiante = $request->user();
+
+        if ($estudiante == null) {
+            abort(401);
+        }
+
+        if ($estudiante->tokenCant('password:reset')) {
+            abort(401);
+        }
+
+        $passwordCode = $this->revisaCodigoDeUsuario($estudiante, $request->input('code'));
 
         $estudiante->forceFill([
             // Al hacer el set se realiza un hash
@@ -66,6 +81,17 @@ class PasswordController extends Controller
         $passwordCode->used = true;
         $passwordCode->save();
 
+        $request->user()->currentAccessToken()->delete();
+
         return response(null, 200);
+    }
+
+    private function revisaCodigoDeUsuario(Estudiante $estudiante, string $code)
+    {
+        // Revisa si el codigo activo es el mismo enviado
+        $passwordCode = $estudiante->activePasswordCode;
+        if ($passwordCode == null) abort(404); // No se encontró
+        if ($passwordCode->code != $code) abort(400); // Ese no es
+        return $passwordCode;
     }
 }

@@ -8,6 +8,7 @@ use App\Notifications\SendPasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Notification;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class PasswordCodeTest extends TestCase
@@ -49,6 +50,7 @@ class PasswordCodeTest extends TestCase
      * 
      * 1. El estudiante no se acuerde de su contraseña
      * 2. Solicite un nuevo código (probado en otro test)
+     * 3. Envia su código para verificarlo, y recibe un token de vuelta
      * 3. Utilice dicho código para cambiar su contraseña
      * 4. Ingrese sesión con la nueva contraseña
      */
@@ -73,17 +75,32 @@ class PasswordCodeTest extends TestCase
         $wrongLoginResponse->assertClientError();
 
         // Solicita una nueva contraseña
+        // (Envia la solicitud del codigo)
 
-        // Con el nuevo código el estudiante cambia su contraseña
-        $newPasswordResponse = $this->patch('api/v1/password', [
+        // Utiliza dicho codigo
+        $verifyPasswordCodeResponse = $this->post('api/v1/password/verify', [
             'numeroControl' => $estudiante->numeroControl,
             'numeroTelefono' => $estudiante->numeroTelefono,
+            'code' => $passwordCode->code,
+        ]);
+
+        $verifyPasswordCodeResponse->assertOk();
+
+        // Con el nuevo código el estudiante cambia su contraseña
+        Sanctum::actingAs($estudiante, ['password:reset']);
+        $newPasswordResponse = $this->patch('api/v1/password', [
             'code' => $passwordCode->code,
             'contrasena' => $contrasena,
             'contrasena_confirmation' => $contrasena,
         ]);
 
         $newPasswordResponse->assertOk();
+
+        // Checa que no existe el token 'passwordReset'
+        foreach ($estudiante->tokens() as $token) {
+            $this->assertStringNotContainsString('passwordReset', $token->name);
+        }
+
 
         // E ingresa sesión
         $correctLoginResponse = $this->post('api/v1/sanctum/token', [
@@ -115,9 +132,8 @@ class PasswordCodeTest extends TestCase
         // Solicita una nueva contraseña
 
         // No se puede utilizar el codigo porque expiró
+        Sanctum::actingAs($estudiante, ['password:reset']);
         $newPasswordResponse = $this->patch('api/v1/password', [
-            'numeroControl' => $estudiante->numeroControl,
-            'numeroTelefono' => $estudiante->numeroTelefono,
             'code' => $passwordCode->code,
             'contrasena' => $contrasena,
             'contrasena_confirmation' => $contrasena,
@@ -149,14 +165,35 @@ class PasswordCodeTest extends TestCase
         // Solicita una nueva contraseña
 
         // No se puede utilizar el codigo porque expiró
+        Sanctum::actingAs($estudiante, ['password:reset']);
         $newPasswordResponse = $this->patch('api/v1/password', [
-            'numeroControl' => $estudiante->numeroControl,
-            'numeroTelefono' => $estudiante->numeroTelefono,
             'code' => $passwordCode->code,
             'contrasena' => $contrasena,
             'contrasena_confirmation' => $contrasena,
         ]);
 
         $newPasswordResponse->assertClientError();
+    }
+
+    public function test_estudiante_no_puede_cambiar_contrasena_sin_token(): void
+    {
+        /** @var PasswordCode */
+        $passwordCode = PasswordCode::factory()->state([
+            'created_at' => now()->subMinutes(3),
+            'used' => true,
+        ])->create();
+        $estudiante = $passwordCode->estudiante;
+        $contrasena = '1234asdF';
+
+        $this->assertModelExists($passwordCode);
+        $this->assertModelExists($estudiante);
+
+        $noTokenResponse = $this->patch('api/v1/password', [
+            'code' => $passwordCode->code,
+            'contrasena' => $contrasena,
+            'contrasena_confirmation' => $contrasena,
+        ]);
+
+        $noTokenResponse->assertUnauthorized();
     }
 }

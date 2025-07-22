@@ -42,5 +42,6 @@ Route::prefix('v1')->group(function () {
     Route::post('sanctum/token', [LoginController::class, 'getToken']);
 
     Route::post('/password', [PasswordController::class, 'sendPasswordMessage']);
-    Route::patch('password', [PasswordController::class, 'resetPassword']);
+    Route::patch('/password', [PasswordController::class, 'resetPassword']);
+    Route::post('/password/verify', [PasswordController::class, 'verifyPasswordCode']);
 });

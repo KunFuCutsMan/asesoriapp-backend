@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Estudiante;
 use App\Rules\IDExistsInTable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\HasApiTokens;
@@ -15,7 +16,7 @@ class EstudianteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $estudiantes = Estudiante::all();
         return response()->json($estudiantes);
@@ -24,7 +25,7 @@ class EstudianteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8|unique:estudiante',
@@ -55,7 +56,7 @@ class EstudianteController extends Controller
             abort(500); // De alguna manera no se insertó
         }
 
-        return response(null, 201);
+        return response()->json([], 201);
     }
 
     /**
@@ -79,7 +80,7 @@ class EstudianteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $estudiante = Estudiante::find($id);
         if (!$estudiante) {
@@ -123,7 +124,7 @@ class EstudianteController extends Controller
 
         $estudiante->save();
         $estudiante->refresh();
-        return $estudiante;
+        return response()->json($estudiante);
     }
 
     /**

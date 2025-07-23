@@ -26,6 +26,10 @@ class LoginTest extends TestCase
         ]);
 
         $response->assertOk();
+        $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'token'
+        ]);
     }
 
     public function test_Login_Estudiante_con_contrasena_equivocada(): void

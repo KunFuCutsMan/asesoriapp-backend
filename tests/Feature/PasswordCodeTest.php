@@ -6,7 +6,6 @@ use App\Models\Estudiante;
 use App\Models\PasswordCode;
 use App\Notifications\SendPasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -85,6 +84,10 @@ class PasswordCodeTest extends TestCase
         ]);
 
         $verifyPasswordCodeResponse->assertOk();
+        $verifyPasswordCodeResponse->assertJsonIsObject();
+        $verifyPasswordCodeResponse->assertJsonStructure([
+            'token'
+        ]);
 
         // Con el nuevo código el estudiante cambia su contraseña
         Sanctum::actingAs($estudiante, ['password:reset']);
@@ -108,6 +111,10 @@ class PasswordCodeTest extends TestCase
             'contrasena' => $contrasena,
         ]);
         $correctLoginResponse->assertOk();
+        $correctLoginResponse->assertJsonIsObject();
+        $correctLoginResponse->assertJsonStructure([
+            'token'
+        ]);
     }
 
     public function test_estudiante_no_puede_utilizar_codigo_expirado(): void
@@ -195,5 +202,27 @@ class PasswordCodeTest extends TestCase
         ]);
 
         $noTokenResponse->assertUnauthorized();
+    }
+
+    public function test_estudiante_envia_codigo_equivocado(): void
+    {
+        /** @var PasswordCode */
+        $passwordCode = PasswordCode::factory()->state([
+            'created_at' => now()->subMinutes(3),
+            'used' => true,
+        ])->create();
+        $estudiante = $passwordCode->estudiante;
+        $contrasena = '1234asdF';
+
+        $this->assertModelExists($passwordCode);
+        $this->assertModelExists($estudiante);
+
+        $noTokenResponse = $this->patch('api/v1/password', [
+            'code' => '12345', // No es de la longitud adecuada
+            'contrasena' => $contrasena,
+            'contrasena_confirmation' => $contrasena,
+        ]);
+
+        $noTokenResponse->assertStatus(302);
     }
 }

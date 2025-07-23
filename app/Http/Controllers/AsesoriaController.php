@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asesoria;
 use App\Rules\IDExistsInTable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AsesoriaController extends Controller
@@ -19,7 +20,7 @@ class AsesoriaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')],
@@ -43,7 +44,7 @@ class AsesoriaController extends Controller
         $asesoria->save();
         $asesoria->refresh();
 
-        return $asesoria;
+        return response()->json($asesoria);
     }
 
     /**

@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Estudiante;
 use App\Models\PasswordCode;
 use App\Notifications\SendPasswordReset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
     //
-    public function sendPasswordMessage(Request $request)
+    public function sendPasswordMessage(Request $request): JsonResponse
     {
         $request->validate([
             'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8',
@@ -33,7 +34,7 @@ class PasswordController extends Controller
         return response()->json();
     }
 
-    public function verifyPasswordCode(Request $request)
+    public function verifyPasswordCode(Request $request): JsonResponse
     {
         $request->validate([
             'numeroControl' => 'required|string|integer|min_digits:8|max_digits:8',
@@ -49,10 +50,13 @@ class PasswordController extends Controller
 
         $this->revisaCodigoDeUsuario($estudiante, $request->input('code'));
 
-        return $estudiante->createToken('passwordReset', ['password:reset'], now()->addMinutes(5))->plainTextToken;
+        $token = $estudiante->createToken('passwordReset', ['password:reset'], now()->addMinutes(5))->plainTextToken;
+        return response()->json([
+            'token' => $token
+        ]);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
             'code' => 'required|string|integer|min_digits:6|max_digits:6',
@@ -83,7 +87,7 @@ class PasswordController extends Controller
 
         $request->user()->currentAccessToken()->delete();
 
-        return response(null, 200);
+        return response()->json([], 200);
     }
 
     private function revisaCodigoDeUsuario(Estudiante $estudiante, string $code)

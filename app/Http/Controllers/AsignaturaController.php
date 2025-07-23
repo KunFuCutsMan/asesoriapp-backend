@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asignatura;
 use App\Models\Carrera;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AsignaturaController extends Controller
@@ -11,7 +12,7 @@ class AsignaturaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($carreraID = $request->query('carreraID')) {
 

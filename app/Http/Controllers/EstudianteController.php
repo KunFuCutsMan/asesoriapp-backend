@@ -65,7 +65,15 @@ class EstudianteController extends Controller
     public function show(string $id)
     {
         $estudiante = Estudiante::find($id);
-        return response()->json($estudiante);
+
+        if ($estudiante == null) abort(404);
+
+        $fullEstudiante = $estudiante->withRelationshipAutoloading()
+            ->with('asesor')
+            ->with('asesor.admin')
+            ->find($estudiante->id);
+
+        return response()->json($fullEstudiante);
     }
 
     public function showByToken(Request $request)
@@ -74,7 +82,12 @@ class EstudianteController extends Controller
 
         if ($estudiante == null) abort(404);
 
-        return response()->json($estudiante);
+        $fullEstudiante = $estudiante->withRelationshipAutoloading()
+            ->with('asesor')
+            ->with('asesor.admin')
+            ->find($estudiante->id);
+
+        return response()->json($fullEstudiante);
     }
 
     /**

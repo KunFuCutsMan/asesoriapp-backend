@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Admin;
 use App\Models\Estudiante;
+use App\Models\Asesor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -147,7 +148,60 @@ class EstudiantesTest extends TestCase
         $response->assertJsonIsObject();
 
         $body = $response->getData(true);
+        $this->evaluaCuerpoEstudiante($estudiante, $body);
+    }
+
+    public function test_Asesor_obtiene_su_informacion_por_token(): void
+    {
+        $asesor = Asesor::factory()->create();
+        $asesor->refresh();
+
+        $estudiante = $asesor->estudiante;
+        Sanctum::actingAs($estudiante);
+
+        $response = $this->get('/api/v1/estudiante/by-token');
+        $response->assertOk();
+        $response->assertJsonIsObject();
+
+        $body = $response->getData(true);
+        $this->evaluaCuerpoEstudiante($estudiante, $body);
+    }
+
+    public function test_Admin_obtiene_su_informacion_por_token(): void
+    {
+        $admin = Admin::factory()->create();
+        $admin->refresh();
+
+        $estudiante = $admin->asesor->estudiante;
+        Sanctum::actingAs($estudiante);
+
+        $response = $this->get('/api/v1/estudiante/by-token');
+        $response->assertOk();
+        $response->assertJsonIsObject();
+
+        $response->dump();
+
+        $body = $response->getData(true);
+        $this->evaluaCuerpoEstudiante($estudiante, $body);
+    }
+
+    private function evaluaCuerpoEstudiante(Estudiante $estudiante, array $body): void
+    {
         foreach ($body as $key => $value) {
+            if ($key === 'asesor' && $body[$key] !== null) {
+                // El estudiante es un asesor
+                $this->assertArrayHasKey('id', $body['asesor']);
+                $this->assertEquals($body['asesor']['id'], $estudiante->asesor->id, 'Llaves de asesor son diferentes');
+                $this->assertEquals($body['asesor']['estudianteID'], $estudiante->id, 'Llaves de estudiante son diferentes');
+
+                if (isset($body['asesor.admin'])) {
+                    // Y un admin
+                    $this->assertArrayHasKey('id', $body['asesor.admin']);
+                    $this->assertEquals($body['asesor.admin.asesorID'], $estudiante->asesor->id);
+                }
+                continue;
+            }
+
             $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
             $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
         }

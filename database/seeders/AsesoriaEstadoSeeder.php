@@ -13,7 +13,7 @@ class AsesoriaEstadoSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->getEstados() as $estado) {
-            DB::table('asesoria_estados')->insert([
+            DB::table('asesoria-estados')->insert([
                 'estado' => $estado,
             ]);
         }

@@ -31,7 +31,12 @@ class AsesoriaFactory extends Factory
                 $hora->modify($offset);
                 return $hora->format('H:i');
             },
-            'estadoAsesoriaID' => AsesoriaEstado::factory(),
+            'estadoAsesoriaID' => fake()->randomElement([
+                AsesoriaEstado::PENDIENTE,
+                AsesoriaEstado::EN_PROGRESO,
+                AsesoriaEstado::REALIZADA,
+                AsesoriaEstado::CANCELADA,
+            ]),
             'estudianteID' => Estudiante::factory(),
             'carreraID' => function (array $attributes) {
                 return Estudiante::find($attributes['estudianteID'])->carreraID;
@@ -39,7 +44,11 @@ class AsesoriaFactory extends Factory
             'asignaturaID' => function (array $attributes) {
                 return Carrera::find($attributes['carreraID'])->asignaturas->random()->id;
             },
-            'asesorID' => Asesor::factory(),
+            'asesorID' => function (array $attributes) {
+                if (AsesoriaEstado::find($attributes['estadoAsesoriaID'])->id === AsesoriaEstado::PENDIENTE)
+                    return null;
+                return Asesor::factory();
+            },
         ];
     }
 }

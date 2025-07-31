@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asesoria;
+use App\Models\AsesoriaEstado;
 use App\Rules\IDExistsInTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ class AsesoriaController extends Controller
             'horaInicial' => $request->input('horaInicial'),
             'horaFinal' => $request->input('horaFinal'),
             'estudianteID' => $estudiante->id,
+            'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE
         ]);
 
         $asesoria->save();

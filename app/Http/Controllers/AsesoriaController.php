@@ -66,9 +66,16 @@ class AsesoriaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
-        //
+        if ($request->user()->tokenCan('role:admin')) {
+
+            if ($request->has('asesorID')) {
+                return $this->asignaAsesor($request, $id);
+            }
+        }
+
+        return abort(400);
     }
 
     /**
@@ -77,5 +84,23 @@ class AsesoriaController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function asignaAsesor(Request $request, int $asesoriaID): JsonResponse
+    {
+        $request->validate([
+            'asesorID' => ['required', 'numeric', 'integer', new IDExistsInTable('asesor')]
+        ]);
+
+        $asesoria = Asesoria::findOrFail($asesoriaID);
+
+        if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::PENDIENTE) {
+            return abort(400);
+        }
+
+        $asesoria->asesorID = $request->input('asesorID');
+        $asesoria->save();
+
+        return response()->json($asesoria);
     }
 }

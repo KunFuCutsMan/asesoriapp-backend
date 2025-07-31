@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Asesoria;
 use DateInterval;
 use DateTimeImmutable;
-use App\Http\Controllers\LoginController;
 use App\Models\Estudiante;
-use DateTimeZone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AsesoriaTest extends TestCase
@@ -19,15 +19,13 @@ class AsesoriaTest extends TestCase
     {
         $estudiante = Estudiante::factory()->create();
         $estudiante->refresh();
-        $token = LoginController::creaToken($estudiante);
 
-        $zone = new DateTimeZone('America/Mexico_City');
-        $inicio = new DateTimeImmutable('now', $zone);
+        Sanctum::actingAs($estudiante);
+
+        $inicio = new DateTimeImmutable('now');
         $final = $inicio->add(new DateInterval('PT1H'));
 
-        $response = $this
-            ->withHeader('Authorization', 'Bearer ' . $token)
-            ->post('/api/v1/asesoria/', [
+        $response = $this->post('/api/v1/asesoria/', [
                 'carreraID' => 1,
                 'asignaturaID' => 1,
                 'diaAsesoria' => $inicio->format("d-m-y"),

@@ -44,4 +44,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/password', [PasswordController::class, 'sendPasswordMessage']);
     Route::patch('/password', [PasswordController::class, 'resetPassword']);
     Route::post('/password/verify', [PasswordController::class, 'verifyPasswordCode']);
+
+    Route::apiResource('/asesorias', AsesoriaController::class)
+        ->middlewareFor(
+            ['index', 'store', 'show', 'update', 'destroy'],
+            'auth:sanctum'
+        );
 });

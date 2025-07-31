@@ -14,7 +14,12 @@ class AsesoriaController extends Controller
      */
     public function index()
     {
-        //
+        $estudiante = request()->user();
+        $asesorias = Asesoria::where('estudianteID', $estudiante->id)
+            ->with(['carrera', 'asignatura'])
+            ->get();
+
+        return response()->json($asesorias);
     }
 
     /**
@@ -44,7 +49,7 @@ class AsesoriaController extends Controller
         $asesoria->save();
         $asesoria->refresh();
 
-        return response()->json($asesoria);
+        return response()->json($asesoria, 201);
     }
 
     /**

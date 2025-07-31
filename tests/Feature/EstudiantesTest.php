@@ -179,8 +179,6 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
 
-        $response->dump();
-
         $body = $response->getData(true);
         $this->evaluaCuerpoEstudiante($estudiante, $body);
     }

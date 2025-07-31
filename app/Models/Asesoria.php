@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Asesoria extends Model
 {
+    use HasFactory;
 
     protected $table = 'asesoria';
     protected $primaryKey = 'id';
@@ -17,7 +19,7 @@ class Asesoria extends Model
         'diaAsesoria',
         'horaInicial',
         'horaFinal',
-        'estadoAsesoria',
+        'estadoAsesoriaID',
         'estudianteID',
         'carreraID',
         'asignaturaID',
@@ -41,6 +43,6 @@ class Asesoria extends Model
 
     public function carreraAsignatura(): BelongsTo
     {
-        return $this->asignatura();
+        return $this->belongsTo(Carrera::class, 'carreraID');
     }
 }

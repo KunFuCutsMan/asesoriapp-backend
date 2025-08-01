@@ -73,6 +73,11 @@ class AsesoriaController extends Controller
             if ($request->has('asesorID')) {
                 return $this->asignaAsesor($request, $id);
             }
+        } else if ($request->user()->tokenCan('role:asesor')) {
+
+            if ($request->has('estadoAsesoriaID')) {
+                return $this->cambiaEstadoAsesoria($request, $id);
+            }
         }
 
         return abort(400);
@@ -103,4 +108,54 @@ class AsesoriaController extends Controller
 
         return response()->json($asesoria);
     }
+
+    private function cambiaEstadoAsesoria(Request $request, int $asesoriaID): JsonResponse
+    {
+        $request->validate([
+            'estadoAsesoriaID' => 'required|numeric|integer|exists:asesoria-estados,id',
+        ]);
+
+        $asesoria = Asesoria::findOrFail($asesoriaID);
+        $asesor = $request->user()->asesor;
+
+        if ($asesor->id !== $asesoria->asesorID) {
+            return abort(403, 'No tienes permiso para cambiar el estado de esta asesoría.');
+        }
+
+        if ($asesoria->estadoAsesoria->id === AsesoriaEstado::CANCELADA || $asesoria->estadoAsesoria->id == AsesoriaEstado::REALIZADA) {
+            return abort(400, 'No se puede cambiar el estado de una asesoría cancelada o terminada.');
+        }
+
+        $nuevoEstado = $request->input('estadoAsesoriaID');
+
+        $horaInicialPasada = horaEsMenorIgualQue($asesoria->horaInicial, now()->format('H:i'));
+        $horaFinalPasada = horaEsMenorIgualQue($asesoria->horaFinal, now()->format('H:i'));
+
+        if (!$horaInicialPasada && !$horaFinalPasada) {
+            return abort(400, 'No se puede cambiar el estado de la asesoría antes de su hora inicial o después de su hora final.');
+        }
+
+        // Si se la asesoria va a estar en progreso, revisa si el tiempo de inicio es anterior a la actual
+        if ($nuevoEstado == AsesoriaEstado::EN_PROGRESO && $horaInicialPasada) {
+            $asesoria->estadoAsesoriaID = AsesoriaEstado::EN_PROGRESO;
+        } else if ($nuevoEstado == AsesoriaEstado::REALIZADA && $horaInicialPasada && $horaFinalPasada) {
+            // Si se va a terminar la asesoria, revisa si el tiempo final es posterior al actual
+            $asesoria->estadoAsesoriaID = AsesoriaEstado::REALIZADA;
+        } else if ($nuevoEstado == AsesoriaEstado::CANCELADA) {
+            $asesoria->estadoAsesoriaID = AsesoriaEstado::CANCELADA;
+        }
+
+        $asesoria->save();
+        return response()->json($asesoria);
+    }
+}
+
+function horaEsMayorIgualQue(string $hora, string $comparacion): bool
+{
+    return strtotime($hora) >= strtotime($comparacion);
+}
+
+function horaEsMenorIgualQue(string $hora, string $comparacion): bool
+{
+    return strtotime($hora) <= strtotime($comparacion);
 }

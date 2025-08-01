@@ -45,4 +45,9 @@ class Asesoria extends Model
     {
         return $this->belongsTo(Carrera::class, 'carreraID');
     }
+
+    public function estadoAsesoria(): BelongsTo
+    {
+        return $this->belongsTo(AsesoriaEstado::class, 'estadoAsesoriaID');
+    }
 }

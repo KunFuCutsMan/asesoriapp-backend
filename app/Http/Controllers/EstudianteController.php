@@ -35,7 +35,7 @@ class EstudianteController extends Controller
             'apellidoMaterno' => 'required|string|max:32',
             'numeroTelefono' => 'required|integer|min_digits:10|max_digits:10',
             'semestre' => 'numeric|integer|gt:0',
-            'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')]
+            'carreraID' => 'required|numeric|integer|exists:carrera,id'
         ]);
 
         $estudiante = new Estudiante([
@@ -101,7 +101,7 @@ class EstudianteController extends Controller
         }
 
         $idProvidedIsSame = $request->user()->id == $id;
-        $isAdmin = $request->user()->tokenCan('role:admin');
+        $isAdmin = $request->user()->isAdmin();
         if (!$idProvidedIsSame && !$isAdmin) {
             abort(403);
             // No se puede editar otro usuario
@@ -116,8 +116,12 @@ class EstudianteController extends Controller
             'apellidoMaterno' => 'string|max:32',
             'numeroTelefono' => 'integer|min_digits:10|max_digits:10',
             'semestre' => 'numeric|integer|gt:0',
-            'carreraID' => ['numeric', 'integer', new IDExistsInTable('carrera')]
+            'carreraID' => 'numeric|integer|exists:carrera,id'
         ]);
+
+        if (empty($fields)) {
+            return response()->json($estudiante); // No hay campos para actualizar
+        }
 
         $modificable = [
             'numeroControl',

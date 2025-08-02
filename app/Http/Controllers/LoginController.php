@@ -31,14 +31,6 @@ class LoginController extends Controller
     {
         $abilidades = [];
 
-        if ($asesor = $estudiante->asesor) {
-            array_push($abilidades, 'role:asesor');
-
-            if ($asesor->admin) {
-                array_push($abilidades, 'role:admin');
-            }
-        }
-
         $nombre = $estudiante->nombre . $estudiante->apellidoPaterno . $estudiante->apeellidoMaterno;
         return $estudiante->createToken($nombre, $abilidades)->plainTextToken;
     }

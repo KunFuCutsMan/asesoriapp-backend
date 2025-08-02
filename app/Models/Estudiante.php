@@ -84,12 +84,12 @@ class Estudiante extends Model implements Authenticatable
 
     function isAsesor(): bool
     {
-        return $this->asesor !== null ?? false;
+        return $this?->asesor !== null ?? false;
     }
 
     function isAdmin(): bool
     {
-        return $this->asesor->admin !== null ?? false;
+        return $this->asesor?->admin !== null ?? false;
     }
 
     function isEstudiante(): bool

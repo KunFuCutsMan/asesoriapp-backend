@@ -29,8 +29,8 @@ class AsesoriaController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'carreraID' => ['required', 'numeric', 'integer', new IDExistsInTable('carrera')],
-            'asignaturaID' => ['required', 'numeric', 'integer', new IDExistsInTable('asignatura')],
+            'carreraID' => 'required|numeric|integer|exists:carrera,id',
+            'asignaturaID' => 'required|numeric|integer|exists:asignatura,id',
             'diaAsesoria' => 'required|date',
             'horaInicial' => 'required|date_format:H:i',
             'horaFinal' => 'required|date_format:H:i|after:horaInicial'
@@ -68,9 +68,9 @@ class AsesoriaController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
-        if ($request->user()->tokenCan('role:admin')) {
+        if ($request->user()->isAdmin()) {
 
-            if ($request->user()->isAdmin()) {
+            if ($request->has('asesorID')) {
                 return $this->asignaAsesor($request, $id);
             }
         } else if ($request->user()->isAsesor()) {

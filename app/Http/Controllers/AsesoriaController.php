@@ -70,10 +70,10 @@ class AsesoriaController extends Controller
     {
         if ($request->user()->tokenCan('role:admin')) {
 
-            if ($request->has('asesorID')) {
+            if ($request->user()->isAdmin()) {
                 return $this->asignaAsesor($request, $id);
             }
-        } else if ($request->user()->tokenCan('role:asesor')) {
+        } else if ($request->user()->isAsesor()) {
 
             if ($request->has('estadoAsesoriaID')) {
                 return $this->cambiaEstadoAsesoria($request, $id);
@@ -88,7 +88,21 @@ class AsesoriaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $estudiante = request()->user();
+
+        $asesoria = Asesoria::where('id', $id)
+            ->where('estudianteID', $estudiante->id)
+            ->orWhere('asesorID', $estudiante->asesor->id)
+            ->firstOrFail();
+
+        if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::PENDIENTE) {
+            return abort(400, 'No se puede cancelar una asesoría que no está pendiente.');
+        }
+
+        $asesoria->estadoAsesoriaID = AsesoriaEstado::CANCELADA;
+        $asesoria->save();
+
+        return response()->json($asesoria);
     }
 
     private function asignaAsesor(Request $request, int $asesoriaID): JsonResponse
@@ -141,8 +155,6 @@ class AsesoriaController extends Controller
         } else if ($nuevoEstado == AsesoriaEstado::REALIZADA && $horaInicialPasada && $horaFinalPasada) {
             // Si se va a terminar la asesoria, revisa si el tiempo final es posterior al actual
             $asesoria->estadoAsesoriaID = AsesoriaEstado::REALIZADA;
-        } else if ($nuevoEstado == AsesoriaEstado::CANCELADA) {
-            $asesoria->estadoAsesoriaID = AsesoriaEstado::CANCELADA;
         }
 
         $asesoria->save();

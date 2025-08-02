@@ -130,7 +130,7 @@ class CreaUsuario extends Command
         $contrasena = password(
             label: 'Ingrese la contraseña del estudiante:',
             placeholder: 'Contraseña',
-            validate: ['contrasena' => ['confirmed', Password::defaults()]],
+            validate: ['contrasena' => Password::defaults()],
             transform: fn($value) => trim($value)
         );
 

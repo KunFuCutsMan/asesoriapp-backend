@@ -85,7 +85,10 @@ class PasswordController extends Controller
         $passwordCode->used = true;
         $passwordCode->save();
 
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->where('name', 'passwordReset')->delete();
+
+        // Elimina el codigo de usuario
+        $estudiante->activePasswordCode()->delete();
 
         return response()->json([], 200);
     }

@@ -29,9 +29,10 @@ class LoginController extends Controller
 
     public static function creaToken(Estudiante $estudiante)
     {
-        $abilidades = [];
-
-        $nombre = $estudiante->nombre . $estudiante->apellidoPaterno . $estudiante->apeellidoMaterno;
-        return $estudiante->createToken($nombre, $abilidades)->plainTextToken;
+        $tokenName = 'login';
+        if ($estudiante->tokens()->where('name', $tokenName)->exists()) {
+            $estudiante->tokens()->where('name', $tokenName)->delete();
+        }
+        return $estudiante->createToken($tokenName)->plainTextToken;
     }
 }

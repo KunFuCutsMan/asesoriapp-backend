@@ -11,9 +11,6 @@ use Tests\TestCase;
 
 class EstudiantesTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     /**
      * A basic feature test example.
      */

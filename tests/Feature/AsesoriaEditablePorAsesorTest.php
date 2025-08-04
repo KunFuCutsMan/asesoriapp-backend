@@ -12,9 +12,6 @@ use Laravel\Sanctum\Sanctum;
 
 class AsesoriaEditablePorAsesorTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     public function test_asesor_actualiza_asesoria_como_en_proceso(): void
     {
         $asesor = Asesor::factory()->create();

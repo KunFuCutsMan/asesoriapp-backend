@@ -8,9 +8,6 @@ use Tests\TestCase;
 
 class EspecialidadTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     public function test_obten_especialidades(): void
     {
         $response = $this->get('/api/v1/especialidades');

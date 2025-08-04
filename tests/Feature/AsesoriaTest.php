@@ -15,9 +15,6 @@ use Tests\TestCase;
 
 class AsesoriaTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     public function test_store_asesoria_como_estudiante(): void
     {
         $estudiante = Estudiante::factory()->create();

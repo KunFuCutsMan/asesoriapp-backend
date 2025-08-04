@@ -7,9 +7,6 @@ use Tests\TestCase;
 
 class CarrerasTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     /**
      * A basic unit test example.
      */

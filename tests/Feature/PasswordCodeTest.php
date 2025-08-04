@@ -12,9 +12,6 @@ use Tests\TestCase;
 
 class PasswordCodeTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     /**
      * Prueba si se creó un código para el usuario, y que se mandó
      */

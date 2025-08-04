@@ -9,9 +9,6 @@ use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     public function test_Login_Estudiante(): void
     {
         $contrasena = '123456789aB&';

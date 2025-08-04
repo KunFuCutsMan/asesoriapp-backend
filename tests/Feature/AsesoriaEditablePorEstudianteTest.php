@@ -13,9 +13,6 @@ use App\Models\Estudiante;
 
 class AsesoriaEditablePorEstudianteTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     public function estudiante_cancela_asesoria(): void
     {
         $estudiante = Estudiante::factory()->create();

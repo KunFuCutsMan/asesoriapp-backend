@@ -7,9 +7,6 @@ use Tests\TestCase;
 
 class AsignaturasTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true;
-
     /**
      * Prueba si la ruta index funciona correctamente (sin parametros)
      */

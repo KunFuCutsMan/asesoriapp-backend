@@ -12,7 +12,7 @@ class EspecialidadesSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach ($this->especialidades as $especialidad) {
+        foreach (EspecialidadesSeeder::$especialidades as $especialidad) {
             DB::table('especialidades')->insert([
                 'nombre' => $especialidad[0],
                 'carreraID' => $especialidad[1],
@@ -20,7 +20,7 @@ class EspecialidadesSeeder extends Seeder
         }
     }
 
-    private $especialidades = [
+    static $especialidades = [
         ['Gestión y Negocios', 1],
         ['Mercadotecnia y Negocios Internacionales', 1],
         ['Ingeniería de Procesos en Alimentos', 2],

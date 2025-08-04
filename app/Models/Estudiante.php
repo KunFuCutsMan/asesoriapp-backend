@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Hash;
@@ -47,6 +48,8 @@ class Estudiante extends Model implements Authenticatable
      */
     protected $hidden = ['contrasena'];
 
+    protected $with = ['carrera', 'especialidad'];
+
     public function contrasena(): Attribute
     {
         return Attribute::make(
@@ -65,9 +68,9 @@ class Estudiante extends Model implements Authenticatable
         return $this->hasOne(Asesor::class, 'estudianteID');
     }
 
-    public function especialidad(): BelongsTo
+    public function especialidad(): HasOneThrough
     {
-        return $this->belongsTo(Especialidad::class, 'especialidadID');
+        return $this->hasOneThrough(Especialidad::class, EstudianteEspecialidad::class, 'estudianteID', 'id');
     }
 
     public function passwordCode(): HasOne

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Admin;
 use App\Models\Estudiante;
 use App\Models\Asesor;
+use App\Models\Especialidad;
+use Database\Factories\EspecialidadFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -144,6 +146,23 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
 
+        $response->assertJsonStructure([
+            'id',
+            'nombre',
+            'numeroControl',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'semestre',
+            'carreraID',
+            'carrera' => [
+                'id',
+                'nombre',
+                'codigo',
+            ],
+            'especialidad',
+            'asesor',
+        ]);
+
         $body = $response->getData(true);
         $this->evaluaCuerpoEstudiante($estudiante, $body);
     }
@@ -159,6 +178,25 @@ class EstudiantesTest extends TestCase
         $response = $this->get('/api/v1/estudiante/by-token');
         $response->assertOk();
         $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'id',
+            'nombre',
+            'numeroControl',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'semestre',
+            'carreraID',
+            'carrera' => [
+                'id',
+                'nombre',
+                'codigo',
+            ],
+            'especialidad',
+            'asesor' => [
+                'id',
+                'admin'
+            ],
+        ]);
 
         $body = $response->getData(true);
         $this->evaluaCuerpoEstudiante($estudiante, $body);
@@ -175,6 +213,68 @@ class EstudiantesTest extends TestCase
         $response = $this->get('/api/v1/estudiante/by-token');
         $response->assertOk();
         $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'id',
+            'nombre',
+            'numeroControl',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'semestre',
+            'carreraID',
+            'carrera' => [
+                'id',
+                'nombre',
+                'codigo',
+            ],
+            'especialidad',
+            'asesor' => [
+                'id',
+                'admin' => [
+                    'id'
+                ]
+            ],
+        ]);
+
+        $body = $response->getData(true);
+        $this->evaluaCuerpoEstudiante($estudiante, $body);
+    }
+
+    public function test_estudiante_con_especialidad_obtiene_su_informacion_por_token(): void
+    {
+        $estudiante = Estudiante::factory()
+            ->state(['carreraID' => '6',])
+            ->conEspecialidad()
+            ->create();
+
+        Sanctum::actingAs($estudiante);
+
+        $this->assertDatabaseCount('estudiante-especialidad', 1);
+
+        $response = $this->get('/api/v1/estudiante/by-token');
+        $response->assertOk();
+        $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'id',
+            'nombre',
+            'numeroControl',
+            'apellidoPaterno',
+            'apellidoMaterno',
+            'semestre',
+            'carreraID',
+            'carrera' => [
+                'id',
+                'nombre',
+                'codigo',
+            ],
+            'especialidad' => [
+                'id',
+                'nombre',
+                'carreraID'
+            ],
+            'asesor',
+        ]);
+
+        $response->dump();
 
         $body = $response->getData(true);
         $this->evaluaCuerpoEstudiante($estudiante, $body);
@@ -182,7 +282,7 @@ class EstudiantesTest extends TestCase
 
     private function evaluaCuerpoEstudiante(Estudiante $estudiante, array $body): void
     {
-        foreach ($body as $key => $value) {
+        foreach ($estudiante->toArray() as $key => $value) {
             if ($key === 'asesor' && $body[$key] !== null) {
                 // El estudiante es un asesor
                 $this->assertArrayHasKey('id', $body['asesor']);
@@ -196,6 +296,8 @@ class EstudiantesTest extends TestCase
                 }
                 continue;
             }
+
+            if ($key == 'carrera') continue;
 
             $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
             $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);

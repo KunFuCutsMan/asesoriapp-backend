@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CarreraAsignaturaSeeder::class,
             AsesoriaEstadoSeeder::class,
+            EspecialidadesSeeder::class,
         ]);
     }
 }

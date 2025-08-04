@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Carrera extends Model
 {
@@ -16,5 +17,10 @@ class Carrera extends Model
     {
         return $this->belongsToMany(Asignatura::class, 'carrera-asignatura', 'carreraID', 'asignaturaID')
             ->withPivot('semestre');
+    }
+
+    public function especialidades(): HasMany
+    {
+        return $this->hasMany(Especialidad::class, 'carreraID');
     }
 }

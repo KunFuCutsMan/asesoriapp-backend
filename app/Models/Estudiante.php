@@ -65,6 +65,11 @@ class Estudiante extends Model implements Authenticatable
         return $this->hasOne(Asesor::class, 'estudianteID');
     }
 
+    public function especialidad(): BelongsTo
+    {
+        return $this->belongsTo(Especialidad::class, 'especialidadID');
+    }
+
     public function passwordCode(): HasOne
     {
         return $this->hasOne(PasswordCode::class, 'estudianteID')->latestOfMany();

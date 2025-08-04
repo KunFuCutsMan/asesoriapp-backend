@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Especialidad extends Model
 {
-    protected $table = 'carrera';
+    protected $table = 'especialidades';
     protected $primaryKey = 'id';
     public $timestamps = false;
 

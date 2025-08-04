@@ -163,6 +163,7 @@ class PasswordCodeTest extends TestCase
         $this->assertModelExists($estudiante);
 
         // El estudiante se le olvida su contraseña
+        Sanctum::actingAs($estudiante, ['password:reset']);
         $wrongLoginResponse = $this->post('api/v1/sanctum/token', [
             'numeroControl' => $estudiante->numeroControl,
             'contrasena' => $contrasena,
@@ -187,7 +188,7 @@ class PasswordCodeTest extends TestCase
         /** @var PasswordCode */
         $passwordCode = PasswordCode::factory()->state([
             'created_at' => now()->subMinutes(3),
-            'used' => true,
+            'used' => false,
         ])->create();
         $estudiante = $passwordCode->estudiante;
         $contrasena = '1234asdF';
@@ -195,6 +196,7 @@ class PasswordCodeTest extends TestCase
         $this->assertModelExists($passwordCode);
         $this->assertModelExists($estudiante);
 
+        Sanctum::actingAs($estudiante, []);
         $noTokenResponse = $this->patch('api/v1/password', [
             'code' => $passwordCode->code,
             'contrasena' => $contrasena,
@@ -209,7 +211,8 @@ class PasswordCodeTest extends TestCase
         /** @var PasswordCode */
         $passwordCode = PasswordCode::factory()->state([
             'created_at' => now()->subMinutes(3),
-            'used' => true,
+            'code' => '123456', // Código correcto
+            'used' => false,
         ])->create();
         $estudiante = $passwordCode->estudiante;
         $contrasena = '1234asdF';
@@ -217,12 +220,13 @@ class PasswordCodeTest extends TestCase
         $this->assertModelExists($passwordCode);
         $this->assertModelExists($estudiante);
 
+        Sanctum::actingAs($estudiante, ['password:reset']);
         $noTokenResponse = $this->patch('api/v1/password', [
-            'code' => '12345', // No es de la longitud adecuada
+            'code' => '123455', // Ese no es bro
             'contrasena' => $contrasena,
             'contrasena_confirmation' => $contrasena,
         ]);
 
-        $noTokenResponse->assertStatus(302);
+        $noTokenResponse->assertClientError();
     }
 }

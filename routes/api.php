@@ -6,7 +6,7 @@ use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PasswordController;
-use App\Models\Estudiante;
+use App\Http\Controllers\EspecialidadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +17,7 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
 
-
+    Route::get('/carreras/{carrera}/especialidades', [EspecialidadController::class, 'byCarrera']);
     Route::apiResource('/carreras', CarreraController::class)->only([
         'index',
         'show'
@@ -27,6 +27,11 @@ Route::prefix('v1')->group(function () {
         'index',
         'show',
     ]);
+
+    Route::apiResource('/especialidades', EspecialidadController::class)->only(
+        'index',
+        'show',
+    );
 
     Route::get('/estudiante/by-token/', [EstudianteController::class, 'showByToken'])
         ->middleware('auth:sanctum');

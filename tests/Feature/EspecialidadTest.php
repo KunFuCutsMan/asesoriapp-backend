@@ -95,6 +95,23 @@ class EspecialidadTest extends TestCase
         $response->assertJsonPath('especialidad.nombre', $especialidad->nombre);
         $response->assertJsonPath('especialidad.carreraID', $especialidad->carreraID);
 
-        $this->assertEquals($response['carrera.id'], $response['especialidad.carreraID']);
+        $this->assertEquals($response['carrera']['id'], $response['especialidad']['carreraID']);
+    }
+
+    function test_estudiante_no_puede_insertar_especialidad_de_otra_carrera(): void
+    {
+        /** @var Especialidad Sistemas Robóticos, Mecatrónica */
+        $especialidad = Especialidad::find(12);
+        $estudiante = Estudiante::factory()->state([
+            'carreraID' => 7, // Pero esta en mecanica
+        ])->create();
+
+        Sanctum::actingAs($estudiante);
+
+        $response = $this->post('/api/v1/estudiante/especialidad', [
+            'especialidadID' => $especialidad->id,
+        ]);
+
+        $response->assertClientError();
     }
 }

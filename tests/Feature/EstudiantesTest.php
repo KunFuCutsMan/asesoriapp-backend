@@ -248,8 +248,6 @@ class EstudiantesTest extends TestCase
 
         Sanctum::actingAs($estudiante);
 
-        $this->assertDatabaseCount('estudiante-especialidad', 1);
-
         $response = $this->get('/api/v1/estudiante/by-token');
         $response->assertOk();
         $response->assertJsonIsObject();

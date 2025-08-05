@@ -32,7 +32,6 @@ class EspecialidadFactory extends Factory
             $especialidad = Arr::first(EspecialidadesSeeder::$especialidades, function (array $val) use ($carreraID) {
                 return $val[1] == $carreraID;
             });
-            print_r($especialidad);
             return [
                 'nombre' => $especialidad[0],
                 'carreraID' => $especialidad[1],

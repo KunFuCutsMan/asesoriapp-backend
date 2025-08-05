@@ -3,10 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Especialidad;
-use App\Models\Estudiante;
-use App\Models\EstudianteEspecialidad;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -37,22 +34,14 @@ class EstudianteFactory extends Factory
             'numeroTelefono' => '229' . strval(fake()->randomNumber(7, true)),
             'semestre' => fake()->randomDigitNot(0),
             'carreraID' => static::$carreraID ??= fake()->numberBetween(1, 11),
+            'especialidadID' => null,
         ];
     }
 
     public function conEspecialidad(): Factory
     {
-        return $this->has(Especialidad::factory()->deCarrera(static::$carreraID))
-            ->afterCreating(function (Estudiante $estudiante) {
-
-                $especialildades = Especialidad::where('carreraID', static::$carreraID)->get();
-                /** @var Especialidad */
-                $especialildad = $especialildades->random();
-
-                EstudianteEspecialidad::insert([
-                    'estudianteID' => $estudiante->id,
-                    'especialidadID' => $especialildad->id,
-                ]);
-            });
+        return $this->state([
+            'especialidadID' => Especialidad::factory()->deCarrera(static::$carreraID),
+        ]);
     }
 }

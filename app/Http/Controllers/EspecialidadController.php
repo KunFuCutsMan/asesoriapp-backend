@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Especialidad;
-use App\Models\EstudianteEspecialidad;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -46,25 +45,17 @@ class EspecialidadController extends Controller
 
         $estudiante = $request->user();
         if ($estudiante == null) abort(404);
-        $estudiante->withRelationshipAutoloading();
 
         /** @var Especialidad */
-        $especialidad = Especialidad::find($especialidadID);
+        $especialidad = Especialidad::where('carreraID', $estudiante->carreraID)
+            ->where('id', $especialidadID)
+            ->first();
 
-        if ($especialidad->carreraID != $estudiante->carreraID) {
-            abort(400); // Solo se puede asignar una especialidad de su carrera
-        }
+        if ($especialidad == null) abort(400);
 
-        $espEstudiante = new EstudianteEspecialidad([
-            'especialidadID' => $especialidad->id,
-            'estudianteID' => $estudiante->id,
-        ]);
+        $especialidad->estudiantes()->save($estudiante);
+        $especialidad->push();
 
-        $estudiante->especialidadEstudiante()->save($espEstudiante);
-        $estudiante->push();
-
-        return response()->json(
-            $estudiante->with('especialidad')->find($estudiante->id)
-        );
+        return response()->json($estudiante->withRelationshipAutoloading()->with('especialidad')->first());
     }
 }

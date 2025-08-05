@@ -22,7 +22,7 @@ class AsignaturaController extends Controller
                 ? $carrera->asignaturas->toResourceCollection()
                 : response()->json(null, 404);
         } else {
-            return Asignatura::all()->toResourceCollection();
+            return Asignatura::with('carreras')->get()->toResourceCollection();
         }
     }
 
@@ -31,7 +31,7 @@ class AsignaturaController extends Controller
      */
     public function show(string $id)
     {
-        $asignatura = Asignatura::find($id);
+        $asignatura = Asignatura::with('carreras')->find($id);
         return $asignatura != null
             ? $asignatura->toResource()
             : response()->json(null, 404);

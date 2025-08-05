@@ -11,10 +11,10 @@ class Asignatura extends Model
     protected $primaryKey = 'id';
     public $timestamps = false;
 
-    public string $nombre;
-
     public function carreras(): BelongsToMany
     {
-        return $this->belongsToMany(Carrera::class, 'carrera-asignatura', 'asignaturaID', 'carreraID');
+        return $this
+            ->belongsToMany(Carrera::class, 'carrera-asignatura', 'asignaturaID', 'carreraID')
+            ->withPivot('semestre');
     }
 }

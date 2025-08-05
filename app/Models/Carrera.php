@@ -13,8 +13,6 @@ class Carrera extends Model
     protected $primaryKey = 'id';
     public $timestamps = false;
 
-    protected $with = ['asignaturas'];
-
     public function asignaturas(): BelongsToMany
     {
         return $this->belongsToMany(Asignatura::class, 'carrera-asignatura', 'carreraID', 'asignaturaID')

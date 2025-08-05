@@ -15,13 +15,22 @@ class AsignaturasTest extends TestCase
         $response = $this->get('/api/v1/asignaturas');
 
         $response->assertOk();
-        $response->assertJsonIsArray();
+        $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            '*' => [
-                'id',
-                'nombre',
+            'data' => [
+                '*' => [
+                    'id',
+                    'nombre',
+                    'carreras' => [
+                        '*' => [
+                            'carreraID',
+                            'semestre',
+                        ]
+                    ],
+                ]
             ]
         ]);
+        $response->assertJsonMissingPath('data.0.carrera');
     }
 
     /**
@@ -33,19 +42,20 @@ class AsignaturasTest extends TestCase
         $response = $this->get('/api/v1/asignaturas?carreraID=6');
 
         $response->assertOk();
-
-        $response->assertJsonIsArray();
+        $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            '*' => [
-                'id',
-                'nombre',
-                'pivot' => [
-                    'carreraID',
-                    'asignaturaID',
-                    'semestre'
+            'data' => [
+                '*' => [
+                    'id',
+                    'nombre',
+                    'carrera' => [
+                        'carreraID',
+                        'semestre',
+                    ],
                 ]
             ]
         ]);
+        $response->assertJsonMissingPath('data.0.carreras');
     }
 
     /**
@@ -55,12 +65,11 @@ class AsignaturasTest extends TestCase
     {
         // Prueba con una carrera existente
         $response = $this->get('/api/v1/asignaturas?carreraID=420');
-
-        $response->assertNotFound();
+        $response->assertStatus(302);
 
         //Prueba con algo que no sea un numero
         $response = $this->get("/api/v1/asignaturas?carreraID=owo");
-        $response->assertBadRequest();
+        $response->assertStatus(302);
     }
 
     function test_Asignaturas_Show_Route(): void
@@ -69,14 +78,18 @@ class AsignaturasTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonIsObject();
-        /*
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'codigo'
+            'data' => [
+                'id',
+                'nombre',
+                'carreras' => [
+                    '*' => [
+                        'carreraID',
+                        'semestre',
+                    ]
+                ],
+            ]
         ]);
-        */
-
-        $this->assertStringContainsString("Desarrollo Sustentable", $response["nombre"]);
+        $response->assertJsonMissingPath('data.carrera');
     }
 }

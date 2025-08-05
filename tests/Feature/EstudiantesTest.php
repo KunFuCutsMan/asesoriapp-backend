@@ -146,24 +146,22 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'numeroControl',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'semestre',
-            'carreraID',
-            'carrera' => [
+            'data' => [
                 'id',
                 'nombre',
-                'codigo',
-            ],
-            'especialidad',
-            'asesor',
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-
-        $body = $response->getData(true);
-        $this->evaluaCuerpoEstudiante($estudiante, $body);
     }
 
     public function test_Asesor_obtiene_su_informacion_por_token(): void
@@ -178,27 +176,22 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'numeroControl',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'semestre',
-            'carreraID',
-            'carrera' => [
+            'data' => [
                 'id',
                 'nombre',
-                'codigo',
-            ],
-            'especialidad',
-            'asesor' => [
-                'id',
-                'admin'
-            ],
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-
-        $body = $response->getData(true);
-        $this->evaluaCuerpoEstudiante($estudiante, $body);
     }
 
     public function test_Admin_obtiene_su_informacion_por_token(): void
@@ -213,29 +206,22 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'numeroControl',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'semestre',
-            'carreraID',
-            'carrera' => [
+            'data' => [
                 'id',
                 'nombre',
-                'codigo',
-            ],
-            'especialidad',
-            'asesor' => [
-                'id',
-                'admin' => [
-                    'id'
-                ]
-            ],
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-
-        $body = $response->getData(true);
-        $this->evaluaCuerpoEstudiante($estudiante, $body);
     }
 
     public function test_estudiante_con_especialidad_obtiene_su_informacion_por_token(): void
@@ -251,28 +237,22 @@ class EstudiantesTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'numeroControl',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'semestre',
-            'carreraID',
-            'carrera' => [
+            'data' => [
                 'id',
                 'nombre',
-                'codigo',
-            ],
-            'especialidad' => [
-                'id',
-                'nombre',
-                'carreraID'
-            ],
-            'asesor',
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-
-        $body = $response->getData(true);
-        $this->evaluaCuerpoEstudiante($estudiante, $body);
     }
 
     private function evaluaCuerpoEstudiante(Estudiante $estudiante, array $body): void

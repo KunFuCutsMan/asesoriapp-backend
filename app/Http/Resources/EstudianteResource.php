@@ -22,7 +22,8 @@ class EstudianteResource extends JsonResource
             'apellidoMaterno' => $this->apellidoMaterno,
             'numeroTelefono' => $this->numeroTelefono,
             'semestre' => $this->semestre,
-            'carrera' => CarreraResource::collection($this->carrera),
+            'carrera' => $this->carrera,
+            'especialidad' => $this->especialidad,
             'asesor' => $this->asesor,
         ];
     }

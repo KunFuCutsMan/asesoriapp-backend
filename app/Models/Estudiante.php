@@ -47,7 +47,7 @@ class Estudiante extends Model implements Authenticatable
      */
     protected $hidden = ['contrasena'];
 
-    protected $with = ['carrera', 'especialidad'];
+    protected $with = ['carrera', 'asesor', 'especialidad'];
 
     public function contrasena(): Attribute
     {

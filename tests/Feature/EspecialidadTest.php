@@ -4,8 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Especialidad;
 use App\Models\Estudiante;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -17,41 +15,42 @@ class EspecialidadTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            '*' => [
-                'id',
-                'nombre',
-                'carrera' => [
+            'data' => [
+                '*' => [
                     'id',
                     'nombre',
+                    'carreraID',
                 ],
-            ],
+            ]
         ]);
     }
 
     public function test_obten_especialidad_de_carrera(): void
     {
         $response = $this->get('api/v1/carreras/6/especialidades');
-
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            '*' => [
-                'id',
-                'nombre',
-                'carreraID',
-            ],
+            'data' => [
+                '*' => [
+                    'id',
+                    'nombre',
+                    'carreraID',
+                ],
+            ]
         ]);
-        $response->assertJsonCount(3);
+        $response->assertJsonCount(3, 'data');
     }
 
     public function test_obten_especialidad_por_id(): void
     {
         $response = $this->get('api/v1/especialidades/1');
-
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'id',
-            'nombre',
-            'carreraID',
+            'data' => [
+                'id',
+                'nombre',
+                'carreraID',
+            ],
         ]);
     }
 

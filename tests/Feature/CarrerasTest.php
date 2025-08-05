@@ -15,12 +15,15 @@ class CarrerasTest extends TestCase
         $resp = $this->get('/api/v1/carreras');
 
         $resp->assertOk();
-        $resp->assertJsonIsArray();
+        $resp->assertJsonIsObject();
         $resp->assertJsonStructure([
-            '*' => [
-                'id',
-                'nombre',
-                'codigo',
+            'data' => [
+                '*' => [
+
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
             ]
         ]);
     }
@@ -32,11 +35,19 @@ class CarrerasTest extends TestCase
         $resp->assertOk();
         $resp->assertJsonIsObject();
         $resp->assertJsonStructure([
-            'id',
-            'nombre',
-            'codigo'
+            'data' => [
+                'id',
+                'nombre',
+                'codigo'
+            ]
         ]);
 
-        $this->assertStringContainsString("Mecatrónica", $resp["nombre"]);
+        $resp->assertJsonPath('data.nombre', "Mecatrónica");
+    }
+
+    public function test_carrera_no_existente(): void
+    {
+        $response = $this->get('api/v1/carreras/999');
+        $response->assertNotFound();
     }
 }

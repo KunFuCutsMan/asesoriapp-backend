@@ -62,32 +62,18 @@ class EstudianteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $estudiante = Estudiante::find($id);
-
         if ($estudiante == null) abort(404);
-
-        $fullEstudiante = $estudiante->withRelationshipAutoloading()
-            ->with('asesor')
-            ->with('asesor.admin')
-            ->find($estudiante->id);
-
-        return response()->json($fullEstudiante);
+        return response()->json($estudiante);
     }
 
-    public function showByToken(Request $request)
+    public function showByToken(Request $request): JsonResponse
     {
         $estudiante = $request->user();
-
         if ($estudiante == null) abort(404);
-
-        $fullEstudiante = $estudiante->withRelationshipAutoloading()
-            ->with('asesor')
-            ->with('asesor.admin')
-            ->find($estudiante->id);
-
-        return response()->json($fullEstudiante);
+        return response()->json($estudiante);
     }
 
     /**

@@ -145,7 +145,6 @@ class EstudiantesTest extends TestCase
         $response = $this->get('/api/v1/estudiante/by-token');
         $response->assertOk();
         $response->assertJsonIsObject();
-
         $response->assertJsonStructure([
             'id',
             'nombre',

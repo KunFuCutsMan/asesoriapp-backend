@@ -11,28 +11,24 @@ class EspecialidadController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json(Especialidad::all());
+        return Especialidad::all()->toResourceCollection();
     }
 
-    public function byCarrera(string $carrera): JsonResponse
+    public function byCarrera(string $carrera)
     {
-        $especialidades = Especialidad::where('carreraID', $carrera)->get();
-        return response()->json($especialidades);
+        return Especialidad::where('carreraID', $carrera)->get()->toResourceCollection();
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id)
     {
         $especialidad = Especialidad::find($id);
-        if (!$especialidad) {
-            abort(404);
-        }
-
-        return response()->json($especialidad);
+        if (!$especialidad) return response()->json(null, 404);
+        return $especialidad->toResource();
     }
 
     public function asignaEspecialidad(Request $request): JsonResponse
@@ -44,14 +40,14 @@ class EspecialidadController extends Controller
         $especialidadID = $request->input('especialidadID');
 
         $estudiante = $request->user();
-        if ($estudiante == null) abort(404);
+        if ($estudiante == null) return response()->json(null, 404);
 
         /** @var Especialidad */
         $especialidad = Especialidad::where('carreraID', $estudiante->carreraID)
             ->where('id', $especialidadID)
             ->first();
 
-        if ($especialidad == null) abort(400);
+        if ($especialidad == null) return response()->json(null, 404);
 
         $especialidad->estudiantes()->save($estudiante);
         $especialidad->push();

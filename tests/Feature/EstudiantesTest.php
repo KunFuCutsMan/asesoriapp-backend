@@ -274,8 +274,6 @@ class EstudiantesTest extends TestCase
             'asesor',
         ]);
 
-        $response->dump();
-
         $body = $response->getData(true);
         $this->evaluaCuerpoEstudiante($estudiante, $body);
     }

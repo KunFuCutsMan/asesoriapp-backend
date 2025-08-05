@@ -10,6 +10,12 @@ class EstudianteEspecialidad extends Model
 {
     protected $table = "estudiante-especialidad";
     protected $primaryKey = "id";
+    public $timestamps = false;
+
+    protected $fillable = [
+        'especialidadID',
+        'estudianteID',
+    ];
 
     protected $hidden = ['laravel_through_key'];
 

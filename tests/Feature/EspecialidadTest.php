@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Especialidad;
+use App\Models\Estudiante;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class EspecialidadTest extends TestCase
@@ -56,5 +59,42 @@ class EspecialidadTest extends TestCase
     {
         $response = $this->get('api/v1/especialidades/999');
         $response->assertStatus(404);
+    }
+
+    public function test_estudiante_puede_insertar_especialidad_de_carrera(): void
+    {
+        /** @var Especialidad Sistemas Robóticos, Mecatrónica */
+        $especialidad = Especialidad::find(12);
+        $estudiante = Estudiante::factory()->state([
+            'carreraID' => $especialidad->carreraID,
+        ])->create();
+
+        $especialidad->refresh();
+        $estudiante->refresh();
+
+        Sanctum::actingAs($estudiante);
+
+        $response = $this->post('/api/v1/estudiante/especialidad', [
+            'especialidadID' => $especialidad->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonIsObject();
+        $response->assertJsonStructure([
+            'especialidad' => [
+                'id',
+                'nombre',
+                'carreraID'
+            ],
+        ]);
+
+        $especialidad->refresh();
+        $estudiante->refresh();
+
+        $response->assertJsonPath('especialidad.id', $especialidad->id);
+        $response->assertJsonPath('especialidad.nombre', $especialidad->nombre);
+        $response->assertJsonPath('especialidad.carreraID', $especialidad->carreraID);
+
+        $this->assertEquals($response['carrera.id'], $response['especialidad.carreraID']);
     }
 }

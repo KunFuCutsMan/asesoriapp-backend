@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -66,6 +65,11 @@ class Estudiante extends Model implements Authenticatable
     public function asesor(): HasOne
     {
         return $this->hasOne(Asesor::class, 'estudianteID');
+    }
+
+    public function especialidadEstudiante(): HasOne
+    {
+        return $this->hasOne(EstudianteEspecialidad::class, 'estudianteID');
     }
 
     public function especialidad(): HasOneThrough

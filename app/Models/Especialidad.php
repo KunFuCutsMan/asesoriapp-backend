@@ -17,6 +17,8 @@ class Especialidad extends Model
 
     protected $with = ['carrera'];
 
+    protected $hidden = ['laravel_through_key'];
+
     public function carrera(): BelongsTo
     {
         return $this->belongsTo(Carrera::class, 'carreraID');

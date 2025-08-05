@@ -35,6 +35,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/estudiante/by-token/', [EstudianteController::class, 'showByToken'])
         ->middleware('auth:sanctum');
+    Route::post('/estudiante/especialidad', [EspecialidadController::class, 'asignaEspecialidad']);
     Route::apiResource('/estudiante', EstudianteController::class)
         ->middlewareFor(
             ['index', 'show', 'update', 'destroy'],

@@ -80,21 +80,35 @@ class EspecialidadTest extends TestCase
         $response->assertOk();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'especialidad' => [
+            'data' => [
                 'id',
                 'nombre',
-                'carreraID'
-            ],
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad' => [
+                    'id',
+                    'nombre',
+                    'carreraID',
+                ],
+                'asesor',
+            ]
         ]);
 
         $especialidad->refresh();
         $estudiante->refresh();
 
-        $response->assertJsonPath('especialidad.id', $especialidad->id);
-        $response->assertJsonPath('especialidad.nombre', $especialidad->nombre);
-        $response->assertJsonPath('especialidad.carreraID', $especialidad->carreraID);
+        $response->assertJsonPath('data.especialidad.id', $especialidad->id);
+        $response->assertJsonPath('data.especialidad.nombre', $especialidad->nombre);
+        $response->assertJsonPath('data.especialidad.carreraID', $especialidad->carreraID);
 
-        $this->assertEquals($response['carrera']['id'], $response['especialidad']['carreraID']);
+        $this->assertEquals($response['data']['carrera']['id'], $response['data']['especialidad']['carreraID']);
     }
 
     function test_estudiante_no_puede_insertar_especialidad_de_otra_carrera(): void

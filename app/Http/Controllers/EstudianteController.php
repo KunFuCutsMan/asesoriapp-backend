@@ -80,7 +80,7 @@ class EstudianteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $id)
     {
         $estudiante = Estudiante::find($id);
         if (!$estudiante) {
@@ -107,7 +107,8 @@ class EstudianteController extends Controller
         ]);
 
         if (empty($fields)) {
-            return response()->json($estudiante); // No hay campos para actualizar
+            return $estudiante->withRelationshipAutoloading()
+                ->toResource();; // No hay campos para actualizar
         }
 
         $modificable = [
@@ -128,7 +129,8 @@ class EstudianteController extends Controller
 
         $estudiante->save();
         $estudiante->refresh();
-        return response()->json($estudiante);
+        return $estudiante->withRelationshipAutoloading()
+            ->toResource();;
     }
 
     /**

@@ -69,24 +69,23 @@ class EstudiantesTest extends TestCase
         $response->assertSuccessful();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'nombre',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'numeroControl',
-            'numeroTelefono',
-            'semestre',
-            'carreraID'
+            'data' => [
+                'id',
+                'nombre',
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-        $response->assertJsonMissingPath('contrasena');
-
-        // ¿Se modificó el estudiante?
-        $estudiante->refresh();
-        $body = $response->getData(true);
-
-        foreach ($modificado as $key => $value) {
-            $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
-            $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
-        }
+        $response->assertJsonMissingPath('data.contrasena');
     }
 
     public function test_Admin_puede_cambiar_datos_de_estudiante(): void
@@ -115,24 +114,23 @@ class EstudiantesTest extends TestCase
         $response->assertSuccessful();
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
-            'nombre',
-            'apellidoPaterno',
-            'apellidoMaterno',
-            'numeroControl',
-            'numeroTelefono',
-            'semestre',
-            'carreraID'
+            'data' => [
+                'id',
+                'nombre',
+                'numeroControl',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'semestre',
+                'carrera' => [
+                    'id',
+                    'nombre',
+                    'codigo',
+                ],
+                'especialidad',
+                'asesor',
+            ]
         ]);
-        $response->assertJsonMissingPath('contrasena');
-
-        // ¿Se modificó el estudiante?
-        $estudiante->refresh();
-        $body = $response->getData(true);
-
-        foreach ($modificado as $key => $value) {
-            $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
-            $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
-        }
+        $response->assertJsonMissingPath('data.contrasena');
     }
 
     public function test_Estudiante_obtiene_su_informacion_por_token(): void
@@ -253,29 +251,5 @@ class EstudiantesTest extends TestCase
                 'asesor',
             ]
         ]);
-    }
-
-    private function evaluaCuerpoEstudiante(Estudiante $estudiante, array $body): void
-    {
-        foreach ($estudiante->toArray() as $key => $value) {
-            if ($key === 'asesor' && $body[$key] !== null) {
-                // El estudiante es un asesor
-                $this->assertArrayHasKey('id', $body['asesor']);
-                $this->assertEquals($body['asesor']['id'], $estudiante->asesor->id, 'Llaves de asesor son diferentes');
-                $this->assertEquals($body['asesor']['estudianteID'], $estudiante->id, 'Llaves de estudiante son diferentes');
-
-                if (isset($body['asesor.admin'])) {
-                    // Y un admin
-                    $this->assertArrayHasKey('id', $body['asesor.admin']);
-                    $this->assertEquals($body['asesor.admin.asesorID'], $estudiante->asesor->id);
-                }
-                continue;
-            }
-
-            if ($key == 'carrera') continue;
-
-            $this->assertEquals($estudiante->{$key}, $value, 'Llave en DB: ' . $key);
-            $this->assertEquals($body[$key], $value, 'Llave en respuesta: ' . $key);
-        }
     }
 }

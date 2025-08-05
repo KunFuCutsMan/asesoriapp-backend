@@ -31,7 +31,7 @@ class EspecialidadController extends Controller
         return $especialidad->toResource();
     }
 
-    public function asignaEspecialidad(Request $request): JsonResponse
+    public function asignaEspecialidad(Request $request)
     {
         $request->validate([
             'especialidadID' => 'required|numeric|integer|exists:especialidades,id',
@@ -52,6 +52,6 @@ class EspecialidadController extends Controller
         $especialidad->estudiantes()->save($estudiante);
         $especialidad->push();
 
-        return response()->json($estudiante->withRelationshipAutoloading()->with('especialidad')->first());
+        return $estudiante->toResource();
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Carrera;
 use App\Models\Estudiante;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Asesoria>
@@ -31,12 +32,7 @@ class AsesoriaFactory extends Factory
                 $hora->modify($offset);
                 return $hora->format('H:i');
             },
-            'estadoAsesoriaID' => fake()->randomElement([
-                AsesoriaEstado::PENDIENTE,
-                AsesoriaEstado::EN_PROGRESO,
-                AsesoriaEstado::REALIZADA,
-                AsesoriaEstado::CANCELADA,
-            ]),
+            'estadoAsesoriaID' => Arr::random([1, 2, 3, 4]),
             'estudianteID' => Estudiante::factory(),
             'carreraID' => function (array $attributes) {
                 return Estudiante::find($attributes['estudianteID'])->carreraID;

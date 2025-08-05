@@ -31,9 +31,9 @@ class Asesoria extends Model
         return $this->belongsTo(Estudiante::class, 'estudianteID');
     }
 
-    public function asesor(): HasOne
+    public function asesor(): BelongsTo
     {
-        return $this->hasOne(Asesor::class, 'asesorID');
+        return $this->belongsTo(Asesor::class, 'asesorID');
     }
 
     public function asignatura(): BelongsTo

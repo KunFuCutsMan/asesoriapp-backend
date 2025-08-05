@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AsesoriaResource;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
 use App\Rules\IDExistsInTable;
@@ -17,10 +18,10 @@ class AsesoriaController extends Controller
     {
         $estudiante = request()->user();
         $asesorias = Asesoria::where('estudianteID', $estudiante->id)
-            ->with(['carrera', 'asignatura'])
+            ->with(['carreraAsignatura', 'asignatura', 'estadoAsesoria', 'asesor'])
             ->get();
 
-        return response()->json($asesorias);
+        return AsesoriaResource::collection($asesorias);
     }
 
     /**
@@ -60,7 +61,7 @@ class AsesoriaController extends Controller
     public function show(string $id)
     {
         $asesoria = Asesoria::find($id);
-        return $asesoria;
+        return $asesoria->toResource();
     }
 
     /**

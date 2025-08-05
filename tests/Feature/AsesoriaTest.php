@@ -6,15 +6,75 @@ use App\Models\Admin;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
 use App\Models\Asesor;
+use App\Models\Asignatura;
+use App\Models\Carrera;
 use DateInterval;
 use DateTimeImmutable;
 use App\Models\Estudiante;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AsesoriaTest extends TestCase
 {
+    public function test_estudiante_obtiene_sus_asesorias(): void
+    {
+        $estudiante = Estudiante::factory()->create();
+        Asesoria::factory()
+            ->count(5)
+            ->recycle($estudiante)
+            ->create([
+                'estudianteID' => $estudiante->id,
+            ]);
+
+        Sanctum::actingAs($estudiante);
+        $response = $this->get('/api/v1/asesoria/');
+
+        $response->assertSuccessful();
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'diaAsesoria',
+                    'horaInicial',
+                    'horaFinal',
+                    'carrera' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'asignatura' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'estadoAsesoria',
+                    'estudianteID',
+                    'asesor',
+                ]
+            ]
+        ]);
+
+        $body = $response->json('data');
+        foreach ($body as $asesoria) {
+            $this->assertEquals($estudiante->id, $asesoria['estudianteID']);
+            $asignatura = Asignatura::find($asesoria['asignatura']['id']);
+            $carrera = Carrera::find($asesoria['carrera']['id']);
+
+            $this->assertNotNull($asignatura);
+            $this->assertNotNull($carrera);
+
+            $asignaturasPosibles = $carrera->asignaturas->pluck('id')->toArray();
+            $this->assertContains($asesoria['asignatura']['id'], $asignaturasPosibles);
+
+            $this->assertEquals($estudiante->id, $asesoria['estudianteID']);
+
+            if ($asesoria['estadoAsesoria']['id'] == AsesoriaEstado::PENDIENTE) {
+                $this->assertNull($asesoria['asesor']);
+            } else {
+                $this->assertNotNull($asesoria['asesor']);
+            }
+        }
+    }
+
     public function test_store_asesoria_como_estudiante(): void
     {
         $estudiante = Estudiante::factory()->create();

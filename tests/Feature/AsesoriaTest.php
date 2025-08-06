@@ -46,7 +46,10 @@ class AsesoriaTest extends TestCase
                         'id',
                         'nombre'
                     ],
-                    'estadoAsesoria',
+                    'estadoAsesoria' => [
+                        'id',
+                        'estado',
+                    ],
                     'estudianteID',
                     'asesor',
                 ]
@@ -85,9 +88,11 @@ class AsesoriaTest extends TestCase
         $inicio = new DateTimeImmutable('now');
         $final = $inicio->add(new DateInterval('PT1H'));
 
+        $asignatura = $estudiante->carrera->asignaturas()->first();
+
         $response = $this->post('/api/v1/asesoria/', [
-            'carreraID' => 1,
-            'asignaturaID' => 1,
+            'carreraID' => $estudiante->carrera->id,
+            'asignaturaID' => $asignatura->id,
             'diaAsesoria' => $inicio->format("d-m-y"),
             'horaInicial' => $inicio->format("H:i"),
             'horaFinal' => $final->format("H:i"),
@@ -97,16 +102,32 @@ class AsesoriaTest extends TestCase
         $this->assertDatabaseCount('asesoria', 1);
 
         $response->assertJsonStructure([
-            'id',
-            'diaAsesoria',
-            'horaInicial',
-            'horaFinal',
-            'estudianteID',
-            'estadoAsesoriaID'
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor',
+            ]
         ]);
 
-        $this->assertEquals($estudiante->id, $response['estudianteID']);
-        $this->assertEquals(AsesoriaEstado::PENDIENTE, $response['estadoAsesoriaID']);
+        $data = $response->json('data');
+        $this->assertEquals($estudiante->id, $data['estudianteID']);
+        $this->assertEquals(AsesoriaEstado::PENDIENTE, $data['estadoAsesoria']['id']);
+        $this->assertNull($data['asesor']);
     }
 
     public function test_admin_asigna_asesoria_a_asesor(): void
@@ -118,7 +139,7 @@ class AsesoriaTest extends TestCase
         $asesor = Asesor::factory()->create();
 
         $admin = Admin::factory()->create();
-        Sanctum::actingAs($admin->asesor->estudiante, ['role:asesor', 'role:admin']);
+        Sanctum::actingAs($admin->asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'asesorID' => $asesor->id,
@@ -129,6 +150,35 @@ class AsesoriaTest extends TestCase
             'id' => $asesoria->id,
             'asesorID' => $asesor->id,
         ]);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor' => [
+                    'id',
+                    'estudianteID',
+                ],
+            ]
+        ]);
+
+        $response->assertJsonPath('data.asesor.id', $asesor->id);
+        $response->assertJsonPath('data.estadoAsesoria.id', AsesoriaEstado::EN_PROGRESO);
     }
 
     public function test_admin_to_puede_cambiar_asesoria_en_proceso(): void

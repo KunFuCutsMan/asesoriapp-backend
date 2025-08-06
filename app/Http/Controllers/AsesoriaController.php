@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AsesoriaResource;
+use App\Models\Asesor;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
 use App\Rules\IDExistsInTable;
@@ -18,7 +19,6 @@ class AsesoriaController extends Controller
     {
         $estudiante = request()->user();
         $asesorias = Asesoria::where('estudianteID', $estudiante->id)
-            ->with(['carreraAsignatura', 'asignatura', 'estadoAsesoria', 'asesor'])
             ->get();
 
         return AsesoriaResource::collection($asesorias);
@@ -39,20 +39,32 @@ class AsesoriaController extends Controller
 
         $estudiante = $request->user();
 
+        if ($estudiante->carrera->id !== $request->input('carreraID')) {
+            return abort(403, 'El estudiante no pertenece a la carrera seleccionada.');
+        }
+
+        $carrera = $estudiante->carrera;
+        $asignatura = $carrera->asignaturas()->find($request->input('asignaturaID'));
+
+        if (!$asignatura) {
+            return abort(404, 'La asignatura no pertenece a la carrera seleccionada.');
+        }
+
         $asesoria = new Asesoria([
             'diaAsesoria' => $request->date('diaAsesoria'),
-            'carreraID' => $request->input('carreraID'),
-            'asignaturaID' => $request->input('asignaturaID'),
             'horaInicial' => $request->input('horaInicial'),
             'horaFinal' => $request->input('horaFinal'),
             'estudianteID' => $estudiante->id,
             'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE
         ]);
 
-        $asesoria->save();
+        $asesoria->carreraAsignatura()->associate($carrera);
+        $asesoria->asignatura()->associate($asignatura);
+
+        $asesoria->push();
         $asesoria->refresh();
 
-        return response()->json($asesoria, 201);
+        return $asesoria->toResource()->response($request)->setStatusCode(201);
     }
 
     /**
@@ -109,19 +121,24 @@ class AsesoriaController extends Controller
     private function asignaAsesor(Request $request, int $asesoriaID): JsonResponse
     {
         $request->validate([
-            'asesorID' => ['required', 'numeric', 'integer', new IDExistsInTable('asesor')]
+            'asesorID' => 'required|numeric|integer|exists:asesor,id',
         ]);
 
-        $asesoria = Asesoria::findOrFail($asesoriaID);
+        /** @var Asesoria */
+        $asesoria = Asesoria::find($asesoriaID);
 
         if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::PENDIENTE) {
             return abort(400);
         }
 
-        $asesoria->asesorID = $request->input('asesorID');
-        $asesoria->save();
+        $estado = AsesoriaEstado::find(AsesoriaEstado::EN_PROGRESO);
+        $asesoria->estadoAsesoria()->associate($estado);
 
-        return response()->json($asesoria);
+        $asesor = Asesor::find($request->input('asesorID'));
+        $asesoria->asesor()->associate($asesor);
+        $asesoria->push();
+
+        return $asesoria->toResource()->response($request)->setStatusCode(200);
     }
 
     private function cambiaEstadoAsesoria(Request $request, int $asesoriaID): JsonResponse

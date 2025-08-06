@@ -13,7 +13,7 @@ use App\Models\Estudiante;
 
 class AsesoriaEditablePorEstudianteTest extends TestCase
 {
-    public function estudiante_cancela_asesoria(): void
+    public function test_estudiante_cancela_asesoria(): void
     {
         $estudiante = Estudiante::factory()->create();
         $asesoria = Asesoria::factory()->state([
@@ -23,7 +23,7 @@ class AsesoriaEditablePorEstudianteTest extends TestCase
 
         Sanctum::actingAs($estudiante);
 
-        $response = $this->delete("/api/v1/asesoria/$asesoria->id");
+        $response = $this->delete("/api/v1/asesoria/" . $asesoria->id);
 
         $response->assertSuccessful();
         $this->assertDatabaseHas('asesoria', [
@@ -32,6 +32,31 @@ class AsesoriaEditablePorEstudianteTest extends TestCase
             'estadoAsesoriaID' => AsesoriaEstado::CANCELADA,
         ]);
 
-        $this->assertEquals(AsesoriaEstado::CANCELADA, $response['estadoAsesoriaID']);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor',
+            ]
+        ]);
+
+        $data = $response->json('data');
+
+        $this->assertEquals(AsesoriaEstado::CANCELADA, $data['estadoAsesoria']['id']);
     }
 }

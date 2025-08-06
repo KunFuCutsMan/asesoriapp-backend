@@ -190,7 +190,7 @@ class AsesoriaTest extends TestCase
         $asesor = Asesor::factory()->create();
 
         $admin = Admin::factory()->create();
-        Sanctum::actingAs($admin->asesor->estudiante, ['role:asesor', 'role:admin']);
+        Sanctum::actingAs($admin->asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'asesorID' => $asesor->id,

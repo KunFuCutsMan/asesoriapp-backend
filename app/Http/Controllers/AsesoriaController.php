@@ -103,19 +103,25 @@ class AsesoriaController extends Controller
     {
         $estudiante = request()->user();
 
-        $asesoria = Asesoria::where('id', $id)
-            ->where('estudianteID', $estudiante->id)
-            ->orWhere('asesorID', $estudiante->asesor->id)
-            ->firstOrFail();
+        /** @var Asesoria */
+        $asesoria = Asesoria::find($id);
 
         if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::PENDIENTE) {
             return abort(400, 'No se puede cancelar una asesoría que no está pendiente.');
         }
 
-        $asesoria->estadoAsesoriaID = AsesoriaEstado::CANCELADA;
-        $asesoria->save();
+        $pertenceAEstudiante = $asesoria->estudianteID === $estudiante->id;
+        $asesoriaPerteneceAAsesor =  $estudiante->isAsesor() && $estudiante->asesor?->id === $asesoria->asesorID;
 
-        return response()->json($asesoria);
+        if (!$pertenceAEstudiante && !$asesoriaPerteneceAAsesor) {
+            return abort(403, 'No tienes permiso para cancelar esta asesoría.');
+        }
+
+        $estado = AsesoriaEstado::find(AsesoriaEstado::CANCELADA);
+        $asesoria->estadoAsesoria()->associate($estado);
+        $asesoria->push();
+
+        return $asesoria->toResource()->response()->setStatusCode(200);
     }
 
     private function asignaAsesor(Request $request, int $asesoriaID): JsonResponse
@@ -147,7 +153,9 @@ class AsesoriaController extends Controller
             'estadoAsesoriaID' => 'required|numeric|integer|exists:asesoria-estados,id',
         ]);
 
-        $asesoria = Asesoria::findOrFail($asesoriaID);
+        /** @var Asesoria */
+        $asesoria = Asesoria::find($asesoriaID);
+        /** @var Asesor */
         $asesor = $request->user()->asesor;
 
         if ($asesor->id !== $asesoria->asesorID) {
@@ -158,8 +166,6 @@ class AsesoriaController extends Controller
             return abort(400, 'No se puede cambiar el estado de una asesoría cancelada o terminada.');
         }
 
-        $nuevoEstado = $request->input('estadoAsesoriaID');
-
         $horaInicialPasada = horaEsMenorIgualQue($asesoria->horaInicial, now()->format('H:i'));
         $horaFinalPasada = horaEsMenorIgualQue($asesoria->horaFinal, now()->format('H:i'));
 
@@ -167,16 +173,21 @@ class AsesoriaController extends Controller
             return abort(400, 'No se puede cambiar el estado de la asesoría antes de su hora inicial o después de su hora final.');
         }
 
+        /** @var int */
+        $nuevoEstado = $request->input('estadoAsesoriaID');
+
         // Si se la asesoria va a estar en progreso, revisa si el tiempo de inicio es anterior a la actual
         if ($nuevoEstado == AsesoriaEstado::EN_PROGRESO && $horaInicialPasada) {
-            $asesoria->estadoAsesoriaID = AsesoriaEstado::EN_PROGRESO;
+            $estadoProgreso = AsesoriaEstado::find(AsesoriaEstado::EN_PROGRESO);
+            $asesoria->estadoAsesoria()->associate($estadoProgreso);
         } else if ($nuevoEstado == AsesoriaEstado::REALIZADA && $horaInicialPasada && $horaFinalPasada) {
             // Si se va a terminar la asesoria, revisa si el tiempo final es posterior al actual
-            $asesoria->estadoAsesoriaID = AsesoriaEstado::REALIZADA;
+            $estadoRealizado = AsesoriaEstado::find(AsesoriaEstado::REALIZADA);
+            $asesoria->estadoAsesoria()->associate($estadoRealizado);
         }
 
-        $asesoria->save();
-        return response()->json($asesoria);
+        $asesoria->push();
+        return $asesoria->toResource()->response($request)->setStatusCode(200);
     }
 }
 

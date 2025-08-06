@@ -17,12 +17,14 @@ class AsesoriaEditablePorAsesorTest extends TestCase
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE,
-            'horaInicial' => now()->subMinutes(2)->format('H:i'),
-            'horaFinal' => now()->addMinutes(58)->format('H:i'),
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
 
-        Sanctum::actingAs($asesor->estudiante, ['role:asesor']);
+        $this->travel(2)->minutes();
+
+        Sanctum::actingAs($asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
@@ -35,7 +37,32 @@ class AsesoriaEditablePorAsesorTest extends TestCase
             'asesorID' => $asesor->id,
         ]);
 
-        $this->assertEquals(AsesoriaEstado::EN_PROGRESO, $response['estadoAsesoriaID']);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor',
+            ]
+        ]);
+
+        $data = $response->json('data');
+        $this->assertEquals($asesor->id, $data['asesor']['id']);
+        $this->assertEquals(AsesoriaEstado::EN_PROGRESO, $data['estadoAsesoria']['id']);
     }
 
     public function test_asesor_actualiza_asesoria_como_realizada(): void
@@ -43,12 +70,13 @@ class AsesoriaEditablePorAsesorTest extends TestCase
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
-            'horaInicial' => now()->subMinutes(2)->format('H:i'),
-            'horaFinal' => now()->addMinutes(58)->format('H:i'),
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
 
-        Sanctum::actingAs($asesor->estudiante, ['role:asesor']);
+        $this->travel(2)->minutes();
+        Sanctum::actingAs($asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'estadoAsesoriaID' => AsesoriaEstado::REALIZADA,
@@ -61,7 +89,35 @@ class AsesoriaEditablePorAsesorTest extends TestCase
             'asesorID' => $asesor->id,
         ]);
 
-        $this->assertEquals(AsesoriaEstado::EN_PROGRESO, $response['estadoAsesoriaID']);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor' => [
+                    'id',
+                    'estudianteID',
+                ],
+            ]
+        ]);
+
+        $data = $response->json('data');
+        $this->assertEquals($asesor->id, $data['asesor']['id']);
+        $this->assertEquals(AsesoriaEstado::EN_PROGRESO, $data['estadoAsesoria']['id']);
     }
 
     public function test_asesor_actualiza_asesoria_como_cancelada(): void
@@ -69,10 +125,12 @@ class AsesoriaEditablePorAsesorTest extends TestCase
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE,
-            'horaInicial' => now()->subMinutes(2)->format('H:i'),
-            'horaFinal' => now()->addMinutes(58)->format('H:i'),
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
+
+        $this->travel(2)->minutes();
 
         Sanctum::actingAs($asesor->estudiante);
 
@@ -85,7 +143,35 @@ class AsesoriaEditablePorAsesorTest extends TestCase
             'asesorID' => $asesor->id,
         ]);
 
-        $this->assertEquals(AsesoriaEstado::CANCELADA, $response['estadoAsesoriaID']);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'diaAsesoria',
+                'horaInicial',
+                'horaFinal',
+                'carrera' => [
+                    'id',
+                    'nombre'
+                ],
+                'asignatura' => [
+                    'id',
+                    'nombre'
+                ],
+                'estadoAsesoria' => [
+                    'id',
+                    'estado',
+                ],
+                'estudianteID',
+                'asesor' => [
+                    'id',
+                    'estudianteID',
+                ],
+            ]
+        ]);
+
+        $data = $response->json('data');
+        $this->assertEquals($asesor->id, $data['asesor']['id']);
+        $this->assertEquals(AsesoriaEstado::CANCELADA, $data['estadoAsesoria']['id']);
     }
 
     public function test_asesor_no_puede_actualizar_asesoria_pendiente_antes_de_tiempo(): void
@@ -98,7 +184,9 @@ class AsesoriaEditablePorAsesorTest extends TestCase
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
 
-        Sanctum::actingAs($asesor->estudiante, ['role:asesor']);
+        $this->travel(2)->minutes();
+
+        Sanctum::actingAs($asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
@@ -117,12 +205,14 @@ class AsesoriaEditablePorAsesorTest extends TestCase
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::REALIZADA,
-            'horaInicial' => now()->subMinutes(2)->format('H:i'),
-            'horaFinal' => now()->addMinutes(58)->format('H:i'),
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
 
-        Sanctum::actingAs($asesor->estudiante, ['role:asesor']);
+        $this->travel(2)->minutes();
+
+        Sanctum::actingAs($asesor->estudiante);
 
         $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
             'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
@@ -141,10 +231,12 @@ class AsesoriaEditablePorAsesorTest extends TestCase
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::CANCELADA,
-            'horaInicial' => now()->subMinutes(2)->format('H:i'),
-            'horaFinal' => now()->addMinutes(58)->format('H:i'),
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
             'asesorID' => $asesor->id,
         ])->recycle($asesor)->create();
+
+        $this->travel(2)->minutes();
 
         Sanctum::actingAs($asesor->estudiante, ['role:asesor']);
 

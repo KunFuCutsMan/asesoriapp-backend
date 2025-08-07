@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Asesor extends Model
@@ -23,5 +24,10 @@ class Asesor extends Model
     public function admin(): HasOne
     {
         return $this->hasOne(Admin::class, 'asesorID');
+    }
+
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(Horario::class, 'asesorID');
     }
 }

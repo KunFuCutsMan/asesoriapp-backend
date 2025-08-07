@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DiaSemana extends Model
 {
@@ -17,4 +18,9 @@ class DiaSemana extends Model
     static $MIERCOLES = 3;
     static $JUEVES = 4;
     static $VIERNES = 5;
+
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(Horario::class, 'diaSemanaID');
+    }
 }

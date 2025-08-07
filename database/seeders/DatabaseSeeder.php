@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             CarreraAsignaturaSeeder::class,
             AsesoriaEstadoSeeder::class,
             EspecialidadesSeeder::class,
+            DiaSemanaSeeder::class,
         ]);
     }
 }

@@ -19,7 +19,6 @@ class CarrerasTest extends TestCase
         $resp->assertJsonStructure([
             'data' => [
                 '*' => [
-
                     'id',
                     'nombre',
                     'codigo',

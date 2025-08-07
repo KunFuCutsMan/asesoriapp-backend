@@ -18,6 +18,7 @@ class HorarioResource extends JsonResource
             'id' => $this->id,
             'horaInicio' => $this->horaInicio,
             'disponible' => $this->disponible,
+            'diaSemana' => $this->diaSemana,
             'asesor' => $this->asesor,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

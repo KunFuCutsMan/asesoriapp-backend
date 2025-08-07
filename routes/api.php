@@ -7,6 +7,7 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\EspecialidadController;
+use App\Http\Controllers\HorarioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,4 +58,10 @@ Route::prefix('v1')->group(function () {
             ['index', 'store', 'show', 'update', 'destroy'],
             'auth:sanctum'
         );
+
+    Route::patch('asesor/horario', [HorarioController::class, 'upsertHorarios'])
+        ->middleware('auth:sanctum');
+    Route::apiResource('asesor/horario', HorarioController::class)
+        ->only('index', 'show')
+        ->middleware('auth:sanctum');
 });

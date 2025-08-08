@@ -60,8 +60,6 @@ class HorarioControllerTest extends TestCase
                         'id',
                         'estudianteID'
                     ],
-                    'created_at',
-                    'updated_at',
                 ]
             ]
         ]);
@@ -115,8 +113,6 @@ class HorarioControllerTest extends TestCase
                         'id',
                         'estudianteID'
                     ],
-                    'created_at',
-                    'updated_at',
                 ]
             ]
         ]);
@@ -159,8 +155,6 @@ class HorarioControllerTest extends TestCase
                         'id',
                         'estudianteID'
                     ],
-                    'created_at',
-                    'updated_at',
                 ]
             ]
         ]);
@@ -183,5 +177,17 @@ class HorarioControllerTest extends TestCase
             return $count;
         }, 0);
         $this->assertEquals(10, $horasOcupados);
+    }
+
+    public function test_asesor_obtiene_horario_vacio(): void
+    {
+        $asesor = Asesor::factory()->create();
+
+        Sanctum::actingAs($asesor->estudiante);
+        $response = $this->get("api/v1/asesor/" . $asesor->id . "/horario");
+
+        $response->assertSuccessful();
+        $response->assertJsonIsObject();
+        $response->assertJsonCount(0, 'data');
     }
 }

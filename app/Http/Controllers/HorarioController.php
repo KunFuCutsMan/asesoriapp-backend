@@ -56,9 +56,8 @@ class HorarioController extends Controller
             abort(403);
         }
 
-        /** @var Collection */
         $horas = $request->input('horas');
-        $horas->each(function (array $valor) use ($asesor) {
+        collect($horas)->each(function (array $valor) use ($asesor) {
             $diaSemana = DiaSemana::find($valor['diaSemanaID']);
 
             /** @var Horario|null */

@@ -15,7 +15,7 @@ class OnlyHasHours implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $valor = DateTimeImmutable::createFromFormat("H:i", $attribute);
+        $valor = DateTimeImmutable::createFromFormat("H:i", $value);
         if (!$valor) {
             $fail(':attribute debe ser formato de hora.');
             return;

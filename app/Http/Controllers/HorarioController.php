@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\HorarioResource;
+use App\Models\Asesor;
 use App\Models\DiaSemana;
 use App\Models\Horario;
 use App\Rules\OnlyHasHours;
@@ -15,22 +16,29 @@ class HorarioController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(int $asesorID)
     {
-        $estudiante = $request->user();
-        if (!$estudiante->isAsesor()) abort(404);
-        return HorarioResource::collection($estudiante->asesor->horarios);
+        $asesor = Asesor::findOrFail($asesorID);
+        return HorarioResource::collection($asesor->horarios);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Horario $horario)
+    public function show(Request $request, int $asesorID, int $horario)
     {
-        return $horario->toResource();
+        $estudiante = $request->user();
+        if (! $estudiante->isAsesor()) {
+            abort(403);
+        }
+        if ($estudiante->asesor->id !== $asesorID) {
+            abort(403);
+        }
+        $horarioModel = $estudiante->asesor->horarios->find($horario);
+        return $horarioModel->toResource() ?? abort(403);
     }
 
-    public function upsertHorarios(Request $request)
+    public function upsertHorarios(Request $request, int $asesorID)
     {
         $request->validate([
             'horas' => 'required',
@@ -44,6 +52,9 @@ class HorarioController extends Controller
             abort(403);
         }
         $asesor = $estudiante->asesor;
+        if ($asesor->id != $asesorID) {
+            abort(403);
+        }
 
         /** @var Collection */
         $horas = $request->input('horas');

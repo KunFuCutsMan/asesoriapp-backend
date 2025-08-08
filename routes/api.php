@@ -59,9 +59,9 @@ Route::prefix('v1')->group(function () {
             'auth:sanctum'
         );
 
-    Route::patch('asesor/horario', [HorarioController::class, 'upsertHorarios'])
+    Route::patch('asesor/{asesorID}/horario', [HorarioController::class, 'upsertHorarios'])
         ->middleware('auth:sanctum');
-    Route::apiResource('asesor/horario', HorarioController::class)
+    Route::apiResource('asesor/{asesorID}/horario', HorarioController::class)
         ->only('index', 'show')
         ->middleware('auth:sanctum');
 });

@@ -10,8 +10,6 @@ use Tests\TestCase;
 
 use DateTimeImmutable;
 
-use function PHPUnit\Framework\assertEquals;
-
 class HorarioControllerTest extends TestCase
 {
     public function test_asesor_publica_horario_para_lunes(): void
@@ -35,7 +33,7 @@ class HorarioControllerTest extends TestCase
             ))->make();
 
         Sanctum::actingAs($asesor->estudiante);
-        $response = $this->patch('/api/v1/asesor/horario', [
+        $response = $this->patch("/api/v1/asesor/" . $asesor->id . "/horario", [
             'horas' => $horas->map(
                 fn(Horario $horario) => [
                     'hora' => $horario->horaInicio,
@@ -90,7 +88,7 @@ class HorarioControllerTest extends TestCase
             ])->make();
 
         Sanctum::actingAs($asesor->estudiante);
-        $response = $this->patch('/api/v1/asesor/horario', [
+        $response = $this->patch("/api/v1/asesor/" . $asesor->id . "/horario", [
             'horas' => $horas->map(
                 fn(Horario $horario) => [
                     'hora' => $horario->horaInicio,
@@ -143,7 +141,7 @@ class HorarioControllerTest extends TestCase
             ->create();
 
         Sanctum::actingAs($asesor->estudiante);
-        $response = $this->get('api/v1/asesor/horario');
+        $response = $this->get("api/v1/asesor/" . $asesor->id . "/horario");
 
         $response->assertSuccessful();
         $response->assertJsonIsObject();

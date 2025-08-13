@@ -50,7 +50,7 @@ class AsesoriaEditablePorEstudianteTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor',
             ]
         ]);

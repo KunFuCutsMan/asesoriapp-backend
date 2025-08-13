@@ -17,10 +17,10 @@ class AsignaturaController extends Controller
             $request->validate([
                 'carreraID' => 'numeric|integer|exists:carrera,id'
             ]);
-            $carrera = Carrera::with('asignaturas')->find($carreraID);
-            return $carrera != null
-                ? $carrera->asignaturas->toResourceCollection()
-                : response()->json(null, 404);
+            return Asignatura::with('carreras')
+                ->whereRelation('carreras', 'carreraID', $carreraID)
+                ->get()
+                ->toResourceCollection();
         } else {
             return Asignatura::with('carreras')->get()->toResourceCollection();
         }

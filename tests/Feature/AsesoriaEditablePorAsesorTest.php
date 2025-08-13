@@ -55,7 +55,7 @@ class AsesoriaEditablePorAsesorTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor',
             ]
         ]);
@@ -107,7 +107,7 @@ class AsesoriaEditablePorAsesorTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor' => [
                     'id',
                     'estudianteID',
@@ -161,7 +161,7 @@ class AsesoriaEditablePorAsesorTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor' => [
                     'id',
                     'estudianteID',

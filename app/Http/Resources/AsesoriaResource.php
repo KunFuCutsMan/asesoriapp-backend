@@ -32,7 +32,7 @@ class AsesoriaResource extends JsonResource
                 ];
             }),
             'estadoAsesoria' => $this->estadoAsesoria,
-            'estudianteID' => $this->estudianteID,
+            'estudiante' => $this->estudiante,
             'asesor' => $this->asesor,
         ];
     }

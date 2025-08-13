@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AsignaturasTest extends TestCase
@@ -23,14 +22,14 @@ class AsignaturasTest extends TestCase
                     'nombre',
                     'carreras' => [
                         '*' => [
-                            'carreraID',
-                            'semestre',
+                            'id',
+                            'nombre',
+                            'codigo',
                         ]
                     ],
                 ]
             ]
         ]);
-        $response->assertJsonMissingPath('data.0.carrera');
     }
 
     /**
@@ -48,14 +47,16 @@ class AsignaturasTest extends TestCase
                 '*' => [
                     'id',
                     'nombre',
-                    'carrera' => [
-                        'carreraID',
-                        'semestre',
+                    'carreras' => [
+                        '*' => [
+                            'id',
+                            'nombre',
+                            'codigo',
+                        ]
                     ],
                 ]
             ]
         ]);
-        $response->assertJsonMissingPath('data.0.carreras');
     }
 
     /**
@@ -84,12 +85,12 @@ class AsignaturasTest extends TestCase
                 'nombre',
                 'carreras' => [
                     '*' => [
-                        'carreraID',
-                        'semestre',
+                        'id',
+                        'nombre',
+                        'codigo',
                     ]
                 ],
             ]
         ]);
-        $response->assertJsonMissingPath('data.carrera');
     }
 }

@@ -50,7 +50,7 @@ class AsesoriaTest extends TestCase
                         'id',
                         'estado',
                     ],
-                    'estudianteID',
+                    'estudiante',
                     'asesor',
                 ]
             ]
@@ -58,7 +58,7 @@ class AsesoriaTest extends TestCase
 
         $body = $response->json('data');
         foreach ($body as $asesoria) {
-            $this->assertEquals($estudiante->id, $asesoria['estudianteID']);
+            $this->assertEquals($estudiante->id, $asesoria['estudiante']['id']);
             $asignatura = Asignatura::find($asesoria['asignatura']['id']);
             $carrera = Carrera::find($asesoria['carrera']['id']);
 
@@ -68,7 +68,7 @@ class AsesoriaTest extends TestCase
             $asignaturasPosibles = $carrera->asignaturas->pluck('id')->toArray();
             $this->assertContains($asesoria['asignatura']['id'], $asignaturasPosibles);
 
-            $this->assertEquals($estudiante->id, $asesoria['estudianteID']);
+            $this->assertEquals($estudiante->id, $asesoria['estudiante']['id']);
 
             if ($asesoria['estadoAsesoria']['id'] == AsesoriaEstado::PENDIENTE) {
                 $this->assertNull($asesoria['asesor']);
@@ -119,13 +119,13 @@ class AsesoriaTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor',
             ]
         ]);
 
         $data = $response->json('data');
-        $this->assertEquals($estudiante->id, $data['estudianteID']);
+        $this->assertEquals($estudiante->id, $data['estudiante']['id']);
         $this->assertEquals(AsesoriaEstado::PENDIENTE, $data['estadoAsesoria']['id']);
         $this->assertNull($data['asesor']);
     }
@@ -169,7 +169,7 @@ class AsesoriaTest extends TestCase
                     'id',
                     'estado',
                 ],
-                'estudianteID',
+                'estudiante',
                 'asesor' => [
                     'id',
                     'estudianteID',

@@ -83,16 +83,12 @@ class AsesoriaController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
-        if ($request->user()->isAdmin()) {
+        if ($request->has('asesorID') && $request->user()->isAdmin()) {
+            return $this->asignaAsesor($request, $id);
+        }
 
-            if ($request->has('asesorID')) {
-                return $this->asignaAsesor($request, $id);
-            }
-        } else if ($request->user()->isAsesor()) {
-
-            if ($request->has('estadoAsesoriaID')) {
-                return $this->cambiaEstadoAsesoria($request, $id);
-            }
+        if ($request->has('estadoAsesoriaID') && $request->user()->isAsesor()) {
+            return $this->cambiaEstadoAsesoria($request, $id);
         }
 
         return abort(400);
@@ -103,27 +99,35 @@ class AsesoriaController extends Controller
      */
     public function destroy(string $id)
     {
-        $estudiante = request()->user();
-
         /** @var Asesoria */
         $asesoria = Asesoria::find($id);
+        if (!$asesoria) abort(404);
 
-        if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::PENDIENTE) {
-            return abort(400, 'No se puede cancelar una asesoría que no está pendiente.');
+        $estudiante = request()->user();
+
+        if ($asesoria->estadoAsesoria->id == AsesoriaEstado::REALIZADA) {
+            return abort(403, 'No se puede cancelar una asesoría que ya ha sido realizada.');
         }
 
-        $pertenceAEstudiante = $asesoria->estudianteID === $estudiante->id;
-        $asesoriaPerteneceAAsesor =  $estudiante->isAsesor() && $estudiante->asesor?->id === $asesoria->asesorID;
-
-        if (!$pertenceAEstudiante && !$asesoriaPerteneceAAsesor) {
-            return abort(403, 'No tienes permiso para cancelar esta asesoría.');
+        if ($estudiante->isAdmin()) {
+            $asesoria->estadoAsesoria()->associate(AsesoriaEstado::find(AsesoriaEstado::CANCELADA));
+            $asesoria->push();
+            return $asesoria->toResource()->response()->setStatusCode(200);
         }
 
-        $estado = AsesoriaEstado::find(AsesoriaEstado::CANCELADA);
-        $asesoria->estadoAsesoria()->associate($estado);
-        $asesoria->push();
+        if ($estudiante->isAsesor() && $asesoria?->asesorID == $estudiante?->asesor->id) {
+            $asesoria->estadoAsesoria()->associate(AsesoriaEstado::find(AsesoriaEstado::CANCELADA));
+            $asesoria->push();
+            return $asesoria->toResource()->response()->setStatusCode(200);
+        }
 
-        return $asesoria->toResource()->response()->setStatusCode(200);
+        if ($asesoria->estudianteID === $estudiante->id) {
+            $asesoria->estadoAsesoria()->associate(AsesoriaEstado::find(AsesoriaEstado::CANCELADA));
+            $asesoria->push();
+            return $asesoria->toResource()->response()->setStatusCode(200);
+        }
+
+        return response()->json([], 403);
     }
 
     private function asignaAsesor(Request $request, int $asesoriaID): JsonResponse

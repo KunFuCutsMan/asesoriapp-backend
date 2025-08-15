@@ -27,7 +27,7 @@ class AsesoriaTest extends TestCase
             ]);
 
         Sanctum::actingAs($estudiante);
-        $response = $this->get('/api/v1/asesoria/');
+        $response = $this->get('/api/v1/asesorias/');
 
         $response->assertSuccessful();
         $response->assertJsonCount(5, 'data');
@@ -90,7 +90,7 @@ class AsesoriaTest extends TestCase
 
         $asignatura = $estudiante->carrera->asignaturas()->first();
 
-        $response = $this->post('/api/v1/asesoria/', [
+        $response = $this->post('/api/v1/asesorias/', [
             'carreraID' => $estudiante->carrera->id,
             'asignaturaID' => $asignatura->id,
             'diaAsesoria' => $inicio->format("d-m-y"),
@@ -141,7 +141,7 @@ class AsesoriaTest extends TestCase
         $admin = Admin::factory()->create();
         Sanctum::actingAs($admin->asesor->estudiante);
 
-        $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
+        $response = $this->put('/api/v1/asesorias/' . $asesoria->id, [
             'asesorID' => $asesor->id,
         ]);
 
@@ -192,7 +192,7 @@ class AsesoriaTest extends TestCase
         $admin = Admin::factory()->create();
         Sanctum::actingAs($admin->asesor->estudiante);
 
-        $response = $this->put('/api/v1/asesoria/' . $asesoria->id, [
+        $response = $this->put('/api/v1/asesorias/' . $asesoria->id, [
             'asesorID' => $asesor->id,
         ]);
 

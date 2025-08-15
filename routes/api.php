@@ -43,9 +43,6 @@ Route::prefix('v1')->group(function () {
             'auth:sanctum'
         );
 
-    Route::apiResource('/asesoria', AsesoriaController::class)
-        ->middleware('auth:sanctum');
-
     Route::post('sanctum/token', [LoginController::class, 'getToken']);
 
     Route::post('/password', [PasswordController::class, 'sendPasswordMessage']);

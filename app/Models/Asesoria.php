@@ -23,6 +23,7 @@ class Asesoria extends Model
         'carreraID',
         'asignaturaID',
         'asesorID',
+        'codigoSeguridad',
     ];
 
     protected $with = [

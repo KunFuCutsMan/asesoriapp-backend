@@ -1,35 +1,38 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\asesorias;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\Asesor;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
+use App\Models\Asesor;
 use Laravel\Sanctum\Sanctum;
-use App\Models\Estudiante;
+use Tests\TestCase;
 
-class AsesoriaEditablePorEstudianteTest extends TestCase
+class PonerEnProgresoAsesoriaTest extends TestCase
 {
-    public function test_estudiante_cancela_asesoria(): void
+    public function test_asesor_actualiza_asesoria_como_en_proceso(): void
     {
-        $estudiante = Estudiante::factory()->create();
+        $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE,
-            'estudianteID' => $estudiante->id,
-        ])->create();
+            'horaInicial' => now()->format('H:i'),
+            'horaFinal' => now()->addHour()->format('H:i'),
+            'asesorID' => $asesor->id,
+        ])->recycle($asesor)->create();
 
-        Sanctum::actingAs($estudiante);
+        $this->travel(2)->minutes();
 
-        $response = $this->delete("/api/v1/asesoria/" . $asesoria->id);
+        Sanctum::actingAs($asesor->estudiante);
+
+        $response = $this->put('/api/v1/asesorias/' . $asesoria->id, [
+            'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
+        ]);
 
         $response->assertSuccessful();
         $this->assertDatabaseHas('asesoria', [
             'id' => $asesoria->id,
-            'estudianteID' => $estudiante->id,
-            'estadoAsesoriaID' => AsesoriaEstado::CANCELADA,
+            'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
+            'asesorID' => $asesor->id,
         ]);
 
         $response->assertJsonStructure([
@@ -56,7 +59,7 @@ class AsesoriaEditablePorEstudianteTest extends TestCase
         ]);
 
         $data = $response->json('data');
-
-        $this->assertEquals(AsesoriaEstado::CANCELADA, $data['estadoAsesoria']['id']);
+        $this->assertEquals($asesor->id, $data['asesor']['id']);
+        $this->assertEquals(AsesoriaEstado::EN_PROGRESO, $data['estadoAsesoria']['id']);
     }
 }

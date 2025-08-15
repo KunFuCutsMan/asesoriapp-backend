@@ -181,7 +181,7 @@ class AsesoriaTest extends TestCase
         $response->assertJsonPath('data.estadoAsesoria.id', AsesoriaEstado::EN_PROGRESO);
     }
 
-    public function test_admin_to_puede_cambiar_asesoria_en_proceso(): void
+    public function test_admin_no_puede_cambiar_asesoria_en_proceso(): void
     {
         $asesoria = Asesoria::factory()->state([
             'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,

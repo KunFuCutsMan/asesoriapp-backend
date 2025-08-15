@@ -56,7 +56,8 @@ class AsesoriaController extends Controller
             'horaInicial' => $request->input('horaInicial'),
             'horaFinal' => $request->input('horaFinal'),
             'estudianteID' => $estudiante->id,
-            'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE
+            'estadoAsesoriaID' => AsesoriaEstado::PENDIENTE,
+            'codigoSeguridad' => $this->codigoSeguridadAleatorio(),
         ]);
 
         $asesoria->carreraAsignatura()->associate($carrera);
@@ -237,6 +238,11 @@ class AsesoriaController extends Controller
         $asesoria->push();
 
         return $asesoria->toResource()->response($request)->setStatusCode(200);
+    }
+
+    private function codigoSeguridadAleatorio(): string
+    {
+        return str_pad(random_int(0, 999999), 6, '0');
     }
 }
 

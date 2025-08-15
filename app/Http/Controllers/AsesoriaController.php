@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AsesoriaResource;
+use App\Http\Resources\CodigoAsesoriaResource;
 use App\Models\Asesor;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
@@ -187,6 +188,54 @@ class AsesoriaController extends Controller
         }
 
         $asesoria->push();
+        return $asesoria->toResource()->response($request)->setStatusCode(200);
+    }
+
+    public function obtenCodigoSeguridad(Request $request, int $asesoriaID): JsonResponse
+    {
+        /** @var Asesoria */
+        $asesoria = Asesoria::find($asesoriaID);
+        if (!$asesoria) abort(404);
+
+        $estudiante = $request->user();
+        if ($asesoria->asesorID !== $estudiante->asesor?->id) {
+            return abort(403, 'No tienes permiso para ver el código de seguridad de esta asesoría.');
+        }
+
+        return $asesoria->toResource(CodigoAsesoriaResource::class)->response($request)->setStatusCode(200);
+    }
+
+    public function terminaAsesoria(Request $request, int $asesoriaID): JsonResponse
+    {
+        /** @var Asesoria */
+        $asesoria = Asesoria::find($asesoriaID);
+        if (!$asesoria) abort(404);
+
+        $estudiante = $request->user();
+        if ($asesoria->estudianteID !== $estudiante->id) {
+            return abort(403, 'No tienes permiso para terminar esta asesoría.');
+        }
+
+        if ($asesoria->estadoAsesoriaID !== AsesoriaEstado::EN_PROGRESO) {
+            return abort(403, 'La asesoría no está en progreso.');
+        }
+
+        if (!horaEsMayorIgualQue(now()->format('H:i'), $asesoria->horaFinal)) {
+            return abort(403, 'No puedes terminar una asesoría antes de su hora final.');
+        }
+
+        $request->validate([
+            'codigo' => 'required|string|size:6',
+        ]);
+        $codigoSeguridad = $request->input('codigo');
+        if ($codigoSeguridad !== $asesoria->codigoSeguridad) {
+            return abort(400, 'El código de seguridad proporcionado es incorrecto.');
+        }
+
+        $estadoRealizado = AsesoriaEstado::find(AsesoriaEstado::REALIZADA);
+        $asesoria->estadoAsesoria()->associate($estadoRealizado);
+        $asesoria->push();
+
         return $asesoria->toResource()->response($request)->setStatusCode(200);
     }
 }

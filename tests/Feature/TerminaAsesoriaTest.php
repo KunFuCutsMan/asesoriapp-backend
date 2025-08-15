@@ -23,9 +23,10 @@ use Tests\TestCase;
  * 
  * 3. El codigo de seguridad deberá ser ingresado por el asesorado para marcar la asesoria como `REALIZADA`.
  * La única manera de obtener este código es a través del asesor.
- *      - A) El estudiante solo puede terminar asesorias que le pertenezcan.
- *      - B) El estudiante solo puede terminar una asesoria si su estado es `EN_PROCESO`
- *      - C) El estudiante solo puede terminar una asesoria si la hora actual es mayor o igual a la hora final
+ *     - A) El estudiante solo puede terminar asesorias que le pertenezcan.
+ *     - B) El estudiante solo puede terminar una asesoria si su estado es `EN_PROCESO`
+ *     - C) El estudiante solo puede terminar una asesoria si la hora actual es mayor o igual a la hora final
+ *     - D) El estudiante solo puede terminar una asesoria si el codigo de seguridad es correcto.
  * 
  * ## Casos de uso
  * 
@@ -47,7 +48,7 @@ class TerminaAsesoriaTest extends TestCase
     {
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
-            'estado' => AsesoriaEstado::EN_PROGRESO,
+            'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
         ])->recycle($asesor)->create();
 
         Sanctum::actingAs($asesor->estudiante);
@@ -59,6 +60,7 @@ class TerminaAsesoriaTest extends TestCase
         $response->assertJsonIsObject();
         $response->assertJsonStructure([
             'data' => [
+                'id',
                 'codigo',
                 'asesorID',
                 'estudianteID',
@@ -69,6 +71,7 @@ class TerminaAsesoriaTest extends TestCase
             ]
         ]);
 
+        $response->assertJsonPath('data.id', $asesoria->id);
         $response->assertJsonPath('data.codigo', $asesoria->codigoSeguridad);
         $response->assertJsonPath('data.asesorID', $asesor->id);
         $response->assertJsonPath('data.estudianteID', $asesoria->estudianteID);
@@ -133,10 +136,11 @@ class TerminaAsesoriaTest extends TestCase
             ]
         ]);
 
+        $asesoria->refresh();
+
         $data = $response->json('data');
         $this->assertEquals($estudiante->id, $data['estudiante']['id']);
         $this->assertEquals(AsesoriaEstado::REALIZADA, $data['estadoAsesoria']['id']);
-        $this->assertEquals($asesoria->codigoSeguridad, $data['codigoSeguridad']);
         $this->assertNotNull($data['asesor']);
     }
 
@@ -154,7 +158,7 @@ class TerminaAsesoriaTest extends TestCase
     {
         $asesor = Asesor::factory()->create();
         $asesoria = Asesoria::factory()->state([
-            'estadoID' => AsesoriaEstado::EN_PROGRESO,
+            'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
         ])->create();
 
         Sanctum::actingAs($asesor->estudiante);
@@ -198,7 +202,7 @@ class TerminaAsesoriaTest extends TestCase
     /**
      * **3B:** El estudiante solo puede terminar una asesoria si su estado es `EN_PROCESO`
      */
-    public function test_caso_uso_estudiante_intenta_termina_asesoria_pendiente_o_cancelada(): void
+    public function test_caso_uso_estudiante_intenta_terminar_asesoria_pendiente_o_cancelada(): void
     {
         $estudiante = Estudiante::factory()->create();
         $asesoriaPendiente = Asesoria::factory()->state([
@@ -257,5 +261,30 @@ class TerminaAsesoriaTest extends TestCase
                 'codigo' => $codigo,
             ]
         )->assertStatus(403);
+    }
+
+    /**
+     * **3D:** El estudiante solo puede terminar una asesoria si el codigo de seguridad es correcto.
+     */
+    public function test_caso_uso_estudiante_intenta_terminar_asesoria_con_codigo_incorrecto(): void
+    {
+        $estudiante = Estudiante::factory()->create();
+        $asesoria = Asesoria::factory()->state([
+            'estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO,
+            'codigoSeguridad' => '123456', // Codigo correcto
+            'horaInicial' => now()->subMinutes(60)->format('H:i'),
+            'horaFinal' => now()->format('H:i'),
+        ])->recycle($estudiante)->create();
+
+        $codigoIncorrecto = '101001'; // Codigo incorrecto
+        Sanctum::actingAs($estudiante);
+        $response = $this->post(
+            '/api/v1/asesorias/' . $asesoria->id . '/terminar',
+            [
+                'codigo' => $codigoIncorrecto,
+            ]
+        );
+
+        $response->assertStatus(400);
     }
 }

@@ -50,6 +50,11 @@ Route::prefix('v1')->group(function () {
         ->middleware('auth:sanctum');
     Route::post('/password/verify', [PasswordController::class, 'verifyPasswordCode']);
 
+    Route::get('asesorias/{asesoriaID}/codigo-seguridad', [AsesoriaController::class, 'obtenCodigoSeguridad'])
+        ->middleware('auth:sanctum');
+    Route::post('asesorias/{asesoriaID}/terminar', [AsesoriaController::class, 'terminaAsesoria'])
+        ->middleware('auth:sanctum');
+
     Route::apiResource('/asesorias', AsesoriaController::class)
         ->middlewareFor(
             ['index', 'store', 'show', 'update', 'destroy'],

@@ -32,6 +32,7 @@ class AsesoriaFactory extends Factory
                 $hora->modify($offset);
                 return $hora->format('H:i');
             },
+            'codigoSeguridad' => fake()->numerify('######'),
             'estadoAsesoriaID' => Arr::random([1, 2, 3, 4]),
             'estudianteID' => Estudiante::factory(),
             'carreraID' => function (array $attributes) {

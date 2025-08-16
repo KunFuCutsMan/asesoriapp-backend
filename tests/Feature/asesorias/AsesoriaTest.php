@@ -20,11 +20,9 @@ class AsesoriaTest extends TestCase
     {
         $estudiante = Estudiante::factory()->create();
         Asesoria::factory()
-            ->count(5)
             ->recycle($estudiante)
-            ->create([
-                'estudianteID' => $estudiante->id,
-            ]);
+            ->count(5)
+            ->create();
 
         Sanctum::actingAs($estudiante);
         $response = $this->get('/api/v1/asesorias/');
@@ -75,6 +73,102 @@ class AsesoriaTest extends TestCase
             } else {
                 $this->assertNotNull($asesoria['asesor']);
             }
+        }
+    }
+
+    public function test_se_obtienen_asesorias_de_otros(): void
+    {
+        $unEstudiante = Estudiante::factory()->create();
+        $otroEstudiante = Estudiante::factory()->create();
+
+        $asesorias = Asesoria::factory()
+            ->recycle($unEstudiante)
+            ->count(5)
+            ->create();
+
+        Sanctum::actingAs($otroEstudiante);
+        $response = $this->get('/api/v1/asesorias/?estudianteID=' . $unEstudiante->id);
+
+        $response->assertSuccessful();
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'diaAsesoria',
+                    'horaInicial',
+                    'horaFinal',
+                    'carrera' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'asignatura' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'estadoAsesoria' => [
+                        'id',
+                        'estado',
+                    ],
+                    'estudiante',
+                    'asesor',
+                ]
+            ]
+        ]);
+
+        $body = $response->json('data');
+        foreach ($body as $asesoria) {
+            $this->assertEquals($unEstudiante->id, $asesoria['estudiante']['id']);
+            $this->assertNotEquals($otroEstudiante->id, $asesoria['estudiante']['id']);
+        }
+    }
+
+    public function test_se_obtienen_asesorias_de_otros_asesores(): void
+    {
+        $unEstudiante = Estudiante::factory()->create();
+        $unAsesor = Asesor::factory()->create();
+
+        Asesoria::factory()
+            ->count(5)
+            ->state([
+                'asesorID' => $unAsesor->id,
+            ])
+            ->recycle($unAsesor)
+            ->create();
+
+        Sanctum::actingAs($unAsesor->estudiante);
+        $response = $this->get('/api/v1/asesorias/?asesorID=' . $unAsesor->id);
+
+        $response->assertSuccessful();
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'diaAsesoria',
+                    'horaInicial',
+                    'horaFinal',
+                    'carrera' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'asignatura' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'estadoAsesoria' => [
+                        'id',
+                        'estado',
+                    ],
+                    'estudiante',
+                    'asesor',
+                ]
+            ]
+        ]);
+
+        $body = $response->json('data');
+        foreach ($body as $asesoria) {
+            $this->assertEquals($unAsesor->id, $asesoria['asesor']['id']);
         }
     }
 

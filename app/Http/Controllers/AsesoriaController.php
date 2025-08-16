@@ -7,7 +7,6 @@ use App\Http\Resources\CodigoAsesoriaResource;
 use App\Models\Asesor;
 use App\Models\Asesoria;
 use App\Models\AsesoriaEstado;
-use App\Rules\IDExistsInTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,13 +15,26 @@ class AsesoriaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        $estudiante = request()->user();
-        $asesorias = Asesoria::where('estudianteID', $estudiante->id)
-            ->get();
+        $request->validate([
+            'estudianteID' => 'sometimes|numeric|integer|exists:estudiante,id',
+            'asesorID' => 'sometimes|numeric|integer|exists:asesor,id',
+        ]);
 
-        return AsesoriaResource::collection($asesorias);
+        if ($request->has('estudianteID')) {
+            $asesorias = Asesoria::where('estudianteID', $request->input('estudianteID'))->get();
+            return AsesoriaResource::collection($asesorias)->response($request)->setStatusCode(200);
+        } elseif ($request->has('asesorID')) {
+            $asesorias = Asesoria::where('asesorID', $request->input('asesorID'))->get();
+            return AsesoriaResource::collection($asesorias)->response($request)->setStatusCode(200);
+        } else {
+            $estudiante = $request->user();
+            $asesorias = Asesoria::where('estudianteID', $estudiante->id)->get();
+            return AsesoriaResource::collection($asesorias)->response($request)->setStatusCode(200);
+        }
+
+        return abort(404, 'No se encontraron asesorías.');
     }
 
     /**

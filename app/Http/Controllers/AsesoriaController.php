@@ -37,6 +37,16 @@ class AsesoriaController extends Controller
         return abort(404, 'No se encontraron asesorías.');
     }
 
+    public function asesoriasSinAsesor(Request $request): JsonResponse
+    {
+        $asesorias = Asesoria::whereNull('asesorID')
+            ->where('estadoAsesoriaID', AsesoriaEstado::PENDIENTE)
+            ->orderBy('diaAsesoria', 'asc')
+            ->get();
+
+        return AsesoriaResource::collection($asesorias)->response($request)->setStatusCode(200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

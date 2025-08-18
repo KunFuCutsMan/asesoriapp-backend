@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function () {
     Route::post('asesorias/{asesoriaID}/terminar', [AsesoriaController::class, 'terminaAsesoria'])
         ->middleware('auth:sanctum');
 
+    Route::get('asesorias/sin-asesor', [AsesoriaController::class, 'asesoriasSinAsesor']);
     Route::apiResource('/asesorias', AsesoriaController::class)
         ->middlewareFor(
             ['index', 'store', 'show', 'update', 'destroy'],

@@ -11,6 +11,7 @@ use App\Models\Carrera;
 use DateInterval;
 use DateTimeImmutable;
 use App\Models\Estudiante;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -136,7 +137,7 @@ class AsesoriaTest extends TestCase
             ->recycle($unAsesor)
             ->create();
 
-        Sanctum::actingAs($unAsesor->estudiante);
+        Sanctum::actingAs($unEstudiante);
         $response = $this->get('/api/v1/asesorias/?asesorID=' . $unAsesor->id);
 
         $response->assertSuccessful();
@@ -295,5 +296,54 @@ class AsesoriaTest extends TestCase
             'id' => $asesoria->id,
             'asesorID' => $asesor->id,
         ]);
+    }
+
+    public function test_se_obtienen_asesorias_sin_asesor(): void
+    {
+        $admin = Admin::factory()->create();
+
+        Asesoria::factory(20)
+            ->state(new Sequence(
+                ['estadoAsesoriaID' => AsesoriaEstado::PENDIENTE],
+                ['estadoAsesoriaID' => AsesoriaEstado::EN_PROGRESO],
+            ))
+            ->create();
+
+        Sanctum::actingAs($admin->asesor->estudiante);
+        $response = $this->get('/api/v1/asesorias/sin-asesor');
+
+        $response->assertSuccessful();
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'diaAsesoria',
+                    'horaInicial',
+                    'horaFinal',
+                    'carrera' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'asignatura' => [
+                        'id',
+                        'nombre'
+                    ],
+                    'estadoAsesoria' => [
+                        'id',
+                        'estado',
+                    ],
+                    'estudiante',
+                    'asesor',
+                ]
+            ]
+        ]);
+
+        $response->assertJsonCount(10, 'data'); // 10 PENDIENTE asesorias
+
+        $body = $response->json('data');
+        foreach ($body as $asesoria) {
+            $this->assertEquals(AsesoriaEstado::PENDIENTE, $asesoria['estadoAsesoria']['id']);
+            $this->assertNull($asesoria['asesor']);
+        }
     }
 }

@@ -24,7 +24,7 @@ class EstudianteResource extends JsonResource
             'semestre' => $this->semestre,
             'carrera' => $this->carrera,
             'especialidad' => $this->especialidad,
-            'asesor' => $this->asesor,
+            'asesor' => $this->asesor() ? new AsesorResource($this->asesor) : null,
         ];
     }
 }

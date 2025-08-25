@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AsesorController;
 use App\Http\Controllers\AsesoriaController;
 use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\CarreraController;
@@ -62,6 +63,8 @@ Route::prefix('v1')->group(function () {
             'auth:sanctum'
         );
 
+    Route::get('asesor/of-asignatura/{asignaturaID}', [AsesorController::class, 'asesoresOfAsignatura'])
+        ->middleware('auth:sanctum');
     Route::patch('asesor/{asesorID}/horario', [HorarioController::class, 'upsertHorarios'])
         ->middleware('auth:sanctum');
     Route::apiResource('asesor/{asesorID}/horario', HorarioController::class)

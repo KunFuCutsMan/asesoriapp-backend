@@ -19,6 +19,7 @@ class AsesorDataResource extends JsonResource
             'asesor' => AsesorResource::make($this),
             'estudiante' => $this->estudiante,
             'asignaturas' => AsignaturaResource::collection($this->asignaturas),
+            'horarios' => HorarioResource::collection($this->horarios)
         ];
     }
 }

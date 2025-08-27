@@ -12,8 +12,46 @@ use Tests\TestCase;
 
 class AsesorControllerTest extends TestCase
 {
+
+    private static $estructuraAsesorData = [
+        'asesor' => ['id', 'estudianteID'],
+        'estudiante' => [
+            'asesor' => ['id', 'estudianteID']
+        ],
+        'asignaturas' => [
+            '*' => ['id', 'nombre']
+        ],
+        'horarios' => [
+            '*' => ['id', 'horaInicio', 'disponible', 'diaSemana', 'asesor']
+        ]
+    ];
+
+    private $estructuraRespuestaAsesores;
+
+    public function __construct(...$args)
+    {
+        parent::__construct(...$args);
+        $this->estructuraRespuestaAsesores = [
+            'data' => [
+                'ideales' => [
+                    '*' => self::$estructuraAsesorData
+                ],
+                'asignatura' => [
+                    '*' => self::$estructuraAsesorData
+                ],
+                'carrera' => [
+                    '*' => self::$estructuraAsesorData
+                ],
+                'otros' => [
+                    '*' => self::$estructuraAsesorData
+                ]
+            ]
+        ];
+    }
+
     /**
-     * A basic feature test example.
+     * Prueba para acceder a los asesores disponibles para una asignatura en cierto horario,
+     * donde se provee solo la hora inicial
      */
     public function test_obten_asesores_para_cierta_asesoria(): void
     {
@@ -51,41 +89,12 @@ class AsesorControllerTest extends TestCase
         $estudiante = Estudiante::factory()->create();
         Sanctum::actingAs($estudiante);
 
-        $response = $this->get('api/v1/asesor/of-asignatura/46?diaSemanaID=1&horaInicio=10:00&horaFinal=11:00');
+        $response = $this->get('api/v1/asesor/of-asignatura/46?diaSemanaID=1&horaInicio=10:00');
 
         $response->assertStatus(200);
 
-        $estructuraAsesorData = [
-            'asesor' => ['id', 'estudianteID'],
-            'estudiante' => [
-                'asesor' => ['id', 'estudianteID']
-            ],
-            'asignaturas' => [
-                '*' => ['id', 'nombre']
-            ],
-            'horarios' => [
-                '*' => ['id', 'horaInicio', 'disponible', 'diaSemana', 'asesor']
-            ]
-        ];
+        $response->assertJsonStructure($this->estructuraRespuestaAsesores);
 
-        $response->assertJsonStructure([
-            'data' => [
-                'ideales' => [
-                    '*' => $estructuraAsesorData
-                ],
-                'asignatura' => [
-                    '*' => $estructuraAsesorData
-                ],
-                'carrera' => [
-                    '*' => $estructuraAsesorData
-                ],
-                'otros' => [
-                    '*' => $estructuraAsesorData
-                ]
-            ]
-        ]);
-
-        $response->dump('data.asignatura');
         $this->assertCount(2, $response->json('data.ideales'));
         $this->assertCount(8, $response->json('data.asignatura'));
         $this->assertCount(10, $response->json('data.carrera'));

@@ -34,7 +34,7 @@ class AsesorController extends Controller
             'horaFinal' => 'sometimes|date_format:H:i',
         ]);
 
-        $diaSemana = $request->input('diaSemana');
+        $diaSemana = $request->input('diaSemanaID');
         $horaInicio = Carbon::createFromFormat('H:i', $request->input('horaInicio'));
         $horaFinal = $request->input('horaFinal', "") != ""
             ? Carbon::createFromFormat('H:i', $request->input('horaFinal'))
@@ -55,11 +55,10 @@ class AsesorController extends Controller
                 $pasadaDeHoraFinal = $horaFinal?->diffInHours($hora) == -1 ?? false;
                 $esDisponible = boolval($horario->disponible);
 
-                if (!$esDisponible) return false; // Ni lo consideres
                 if ($horaFinal != null) // La hora final es exactamente la final que la anterior, y hay posibilidad que hay horas anteriores
                     return $pasadaDeHoraFinal && $horaInicio->diffInHours($hora) > 0;
 
-                return $horaCoincide;
+                return $esDisponible && $horaCoincide;
             });
 
             return $esIdeal;

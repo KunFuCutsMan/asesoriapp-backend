@@ -61,24 +61,25 @@ class AsesorControllerTest extends TestCase
         Asesor::factory(2)
             ->hasAttached($asignatura, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $hora = new Horario();
-                $hora->horaInicio = DateTimeImmutable::createFromFormat('H:i', '10:00');
-                $hora->disponible = true;
-                $hora->diaSemanaID = 1;
-
-                $asesor->horarios()->save($hora);
+                $asesor->horarios()->save(Horario::factory()
+                    ->state([
+                        'horaInicio' => '10:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])
+                    ->create());
             })
             ->create();
 
         Asesor::factory(8)
             ->hasAttached($asignatura, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $hora = new Horario();
-                $hora->horaInicio = DateTimeImmutable::createFromFormat('H:i', '09:00');
-                $hora->disponible = true;
-                $hora->diaSemanaID = 1;
-
-                $asesor->horarios()->save($hora);
+                $asesor->horarios()->save(Horario::factory()
+                    ->state([
+                        'horaInicio' => '09:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])->create());
             })
             ->create();
 
@@ -140,5 +141,84 @@ class AsesorControllerTest extends TestCase
 
         $response = $this->get('api/v1/asesor/of-asignatura/999999');
         $response->assertStatus(404);
+    }
+
+    public function test_se_obtienen_asesores_con_hora_inicio_y_hora_final(): void
+    {
+        $calculoDif = Asignatura::find(46);
+        $otrasAsignturas = Asignatura::where('id', '!=', 46)->get();
+
+        // Asesor con una hora inicial y final
+        Asesor::factory()
+            ->hasAttached($calculoDif, [], 'asignaturas')
+            ->afterCreating(function (Asesor $asesor) {
+                $asesor->horarios()->saveMany([
+                    Horario::factory()->state([
+                        'horaInicio' => '10:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])->create(),
+                    Horario::factory()->state([
+                        'horaInicio' => '11:00',
+                        'disponible' => false,
+                        'diaSemanaID' => 1,
+                    ])->create()
+                ]);
+            })
+            ->create();
+
+        // Asesor con solo hora inicial
+        Asesor::factory()
+            ->hasAttached($calculoDif, [], 'asignaturas')
+            ->afterCreating(function (Asesor $asesor) {
+                $asesor->horarios()->save(
+                    Horario::factory()->state([
+                        'horaInicio' => '10:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])->create()
+                );
+            })
+            ->create();
+
+        // Otros asesores sin la hora, pero si tiene la asignatura
+        Asesor::factory()
+            ->hasAttached($calculoDif, [], 'asignaturas')
+            ->afterCreating(function (Asesor $asesor) {
+                $asesor->horarios()->saveMany([
+                    Horario::factory()->state([
+                        'horaInicio' => '9:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])->create(),
+                    Horario::factory()->state([
+                        'horaInicio' => '10:00',
+                        'disponible' => false,
+                        'diaSemanaID' => 1,
+                    ])->create(),
+                    Horario::factory()->state([
+                        'horaInicio' => '11:00',
+                        'disponible' => true,
+                        'diaSemanaID' => 1,
+                    ])->create()
+                ]);
+            })
+            ->create();
+
+        // Otros asesores
+        Asesor::factory(10)
+            ->hasAttached($otrasAsignturas->random(3), [], 'asignaturas')
+            ->create();
+
+
+        Sanctum::actingAs(Estudiante::factory()->create());
+        $response = $this->get('api/v1/asesor/of-asignatura/46?diaSemanaID=1&horaInicio=10:00&horaFinal=11:00');
+
+        $response->assertOk();
+        $response->assertJsonStructure($this->estructuraRespuestaAsesores);
+        $this->assertCount(2, $response->json('data.ideales'));
+        $this->assertCount(8, $response->json('data.asignatura'));
+        $this->assertCount(10, $response->json('data.carrera'));
+        $this->assertCount(0, $response->json('data.otros'));
     }
 }

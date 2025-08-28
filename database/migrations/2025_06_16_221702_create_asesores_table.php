@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Asesor;
+use App\Models\Asignatura;
+use App\Models\Estudiante;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,17 +16,17 @@ return new class extends Migration
     {
         Schema::create('asesor', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('estudianteID')->references('id')->on('estudiante');
+            $table->foreignIdFor(Estudiante::class, 'estudianteID');
         });
 
-        Schema::create('asesor-asignatura', function (Blueprint $table) {
-            $table->foreignId('asesorID')->references('id')->on('asesor');
-            $table->foreignId('asignaturaID')->references('id')->on('asignatura');
+        Schema::create('asesor_asignatura', function (Blueprint $table) {
+            $table->foreignIdFor(Asesor::class, 'asesorID');
+            $table->foreignIdFor(Asignatura::class, 'asignaturaID');
         });
 
         Schema::create('admin', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asesorID')->references('id')->on('asesor');
+            $table->foreignIdFor(Asesor::class, 'asesorID');
         });
     }
 
@@ -34,17 +37,18 @@ return new class extends Migration
     {
         Schema::table('admin', function (Blueprint $table) {
             $table->dropForeign(['asesorID']);
+            $table->dropForeignIdFor(Asesor::class, 'asesorID');
         });
-        Schema::table('asesor-asignatura', function (Blueprint $table) {
-            $table->dropForeign(['asesorID']);
-            $table->dropForeign(['asignaturaID']);
+        Schema::table('asesor_asignatura', function (Blueprint $table) {
+            $table->dropForeignIdFor(Asesor::class, 'asesorID');
+            $table->dropForeignIdFor(Asignatura::class, 'asignaturaID');
         });
         Schema::table('asesor', function (Blueprint $table) {
-            $table->dropForeign(['estudianteID']);
+            $table->dropForeignIdFor(Estudiante::class, 'estudianteID');
         });
 
         Schema::dropIfExists('admin');
-        Schema::dropIfExists('asesor-asignatura');
+        Schema::dropIfExists('asesor_asignatura');
         Schema::dropIfExists('asesor');
     }
 };

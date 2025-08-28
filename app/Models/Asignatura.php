@@ -14,13 +14,13 @@ class Asignatura extends Model
     public function carreras(): BelongsToMany
     {
         return $this
-            ->belongsToMany(Carrera::class, 'carrera-asignatura', 'asignaturaID', 'carreraID')
+            ->belongsToMany(Carrera::class, 'carrera_asignatura', 'asignaturaID', 'carreraID')
             ->withPivot('semestre');
     }
 
     public function asesores(): BelongsToMany
     {
         return $this
-            ->belongsToMany(Asesor::class, 'asesor-asignatura', 'asignaturaID', 'asesorID');
+            ->belongsToMany(Asesor::class, 'asesor_asignatura', 'asignaturaID', 'asesorID');
     }
 }

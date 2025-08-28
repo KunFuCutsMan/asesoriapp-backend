@@ -35,6 +35,6 @@ class Asesor extends Model
     public function asignaturas(): BelongsToMany
     {
         return $this
-            ->belongsToMany(Asignatura::class, 'asesor-asignatura', 'asesorID', 'asignaturaID');
+            ->belongsToMany(Asignatura::class, 'asesor_asignatura', 'asesorID', 'asignaturaID');
     }
 }

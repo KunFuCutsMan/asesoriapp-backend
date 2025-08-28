@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Estudiante;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->boolean('used')->default(false);
 
-            $table->foreignId('estudianteID')->references('id')->on('estudiante');
+            $table->foreignIdFor(Estudiante::class, 'estudianteID');
         });
     }
 
@@ -27,7 +28,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('password_code', function (Blueprint $table) {
-            $table->dropForeign(['estudianteID']);
+            $table->dropForeignIdFor(Estudiante::class, 'estudianteID');
         });
         Schema::dropIfExists('password_code');
     }

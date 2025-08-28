@@ -26,7 +26,7 @@ class CarreraAsignaturaSeeder extends Seeder
             ]);
 
             foreach ($parCarreraSemestre as [$carreraID, $semestre]) {
-                DB::table('carrera-asignatura')->insert([
+                DB::table('carrera_asignatura')->insert([
                     'carreraID' => $carreraID,
                     'asignaturaID' => $asignaturaID,
                     'semestre' => $semestre,

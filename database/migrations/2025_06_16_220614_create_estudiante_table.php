@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Carrera;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->char('numeroTelefono', 10);
             $table->tinyInteger('semestre', false, true);
 
-            $table->foreignId('carreraID')->references('id')->on('carrera');
+            $table->foreignIdFor(Carrera::class, 'carreraID');
         });
     }
 
@@ -31,7 +32,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('estudiante', function (Blueprint $table) {
-            $table->dropForeign(['carreraID']);
+            $table->dropForeignIdFor(Carrera::class, 'carreraID');
         });
 
         Schema::dropIfExists('estudiante');

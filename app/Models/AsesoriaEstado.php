@@ -9,7 +9,7 @@ class AsesoriaEstado extends Model
 {
     use HasFactory;
 
-    protected $table = 'asesoria-estados';
+    protected $table = 'asesoria_estados';
     protected $primaryKey = 'id';
     public $timestamps = false;
 

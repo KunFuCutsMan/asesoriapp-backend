@@ -29,7 +29,7 @@ class AsesorController extends Controller
         }
 
         $request->validate([
-            'diaSemanaID' => 'required|numeric|integer|exists:dias-semana,id',
+            'diaSemanaID' => 'required|numeric|integer|exists:dias_semana,id',
             'horaInicio' => 'required|date_format:H:i',
             'horaFinal' => 'sometimes|date_format:H:i',
         ]);

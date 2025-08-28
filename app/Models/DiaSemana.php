@@ -11,7 +11,7 @@ class DiaSemana extends Model
     /** @use HasFactory<\Database\Factories\DiaSemanaFactory> */
     use HasFactory;
 
-    protected $table = 'dias-semana';
+    protected $table = 'dias_semana';
 
     static $LUNES = 1;
     static $MARTES = 2;

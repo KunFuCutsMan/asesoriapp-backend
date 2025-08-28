@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Asesor;
+use App\Models\Asignatura;
+use App\Models\Carrera;
+use App\Models\Estudiante;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,10 +22,10 @@ return new class extends Migration
             $table->time('horaFinal', 0);
             $table->tinyInteger('estadoAsesoria')->comment('Estado actual de la asesoria. 0: No hecha, 1: En progreso, 2: Terminada, 3: Cancelada')->default(0);
 
-            $table->foreignId('estudianteID')->references('id')->on('estudiante');
-            $table->foreignId('carreraID')->references('carreraID')->on('carrera-asignatura');
-            $table->foreignId('asignaturaID')->references('asignaturaID')->on('carrera-asignatura');
-            $table->foreignId('asesorID')->nullable()->references('id')->on('asesor');
+            $table->foreignIdFor(Estudiante::class, 'estudianteID');
+            $table->foreignIdFor(Asesor::class, 'asesorID');
+            $table->foreignId('carreraID')->references('carreraID')->on('carrera_asignatura');
+            $table->foreignId('asignaturaID')->references('asignaturaID')->on('carrera_asignatura');
         });
     }
 
@@ -31,10 +35,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('asesoria', function (Blueprint $table) {
-            $table->dropForeign(['estudianteID']);
+            $table->dropForeignIdFor(Estudiante::class, 'estudianteID');
+            $table->dropForeignIdFor(Asesor::class, 'asesorID');
             $table->dropForeign(['carreraID']);
             $table->dropForeign(['asignaturaID']);
-            $table->dropForeign(['asesorID']);
         });
 
         Schema::dropIfExists('asesoria');

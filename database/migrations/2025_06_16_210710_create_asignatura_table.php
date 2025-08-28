@@ -16,10 +16,11 @@ return new class extends Migration
             $table->string('nombre', 64);
         });
 
-        Schema::create('carrera-asignatura', function (Blueprint $table) {
+        Schema::create('carrera_asignatura', function (Blueprint $table) {
             $table->foreignId('carreraID')->references('id')->on('carrera');
             $table->foreignId('asignaturaID')->references('id')->on('asignatura');
             $table->tinyInteger('semestre', false, true);
+            $table->primary(['carreraID', 'asignaturaID']);
         });
     }
 
@@ -28,12 +29,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('carrera-asignatura', function (Blueprint $table) {
+        Schema::table('carrera_asignatura', function (Blueprint $table) {
             $table->dropForeign(['carreraID']);
             $table->dropForeign(['asignaturaID']);
         });
 
-        Schema::dropIfExists('carrera-asignatura');
+        Schema::dropIfExists('carrera_asignatura');
         Schema::dropIfExists('asignatura');
     }
 };

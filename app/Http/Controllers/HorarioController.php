@@ -44,7 +44,7 @@ class HorarioController extends Controller
             'horas' => 'required',
             'horas.*.hora' => ['required', Rule::date()->format('H:i'), new OnlyHasHours()],
             'horas.*.disponible' => 'required|boolean',
-            'horas.*.diaSemanaID' => 'required|numeric|integer|exists:dias-semana,id',
+            'horas.*.diaSemanaID' => 'required|numeric|integer|exists:dias_semana,id',
         ]);
 
         $estudiante = $request->user();

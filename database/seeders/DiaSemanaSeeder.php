@@ -14,7 +14,7 @@ class DiaSemanaSeeder extends Seeder
     {
         $dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
         foreach ($dias as $dia) {
-            DB::table('dias-semana')->insert([
+            DB::table('dias_semana')->insert([
                 'nombre' => $dia,
             ]);
         }

@@ -50,7 +50,7 @@ class AsesorController extends Controller
                 return false; // No esta libre ese dia
 
             $esIdeal = $horariosDeEseDia->contains(function (Horario $horario) use ($horaInicio, $horaFinal) {
-                $hora = Carbon::createFromFormat('H:i:s', $horario->horaInicio);
+                $hora = Carbon::createFromFormat('H:i', $horario->horaInicio);
                 $horaCoincide = $horaInicio->diffInHours($hora) == 0;
                 $pasadaDeHoraFinal = $horaFinal?->diffInHours($hora) == -1 ?? false;
                 $esDisponible = boolval($horario->disponible);

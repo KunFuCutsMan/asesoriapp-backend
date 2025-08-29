@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,7 +17,7 @@ class HorarioResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'horaInicio' => $this->horaInicio,
+            'horaInicio' => Carbon::parse($this->horaInicio)->format('H:i:s'),
             'disponible' => boolval($this->disponible),
             'diaSemana' => $this->diaSemana,
             'asesor' => $this->asesor,

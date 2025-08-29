@@ -78,8 +78,8 @@ class Estudiante extends Model implements Authenticatable
     function activePasswordCode(): HasOne
     {
         return $this->hasOne(PasswordCode::class, 'estudianteID')->ofMany([
-            'created_at' => 'max',
-            'id' => 'max'
+            'created_at' => 'MAX',
+            'id' => 'MAX'
         ], function (EloquentBuilder $query) {
             $query
                 ->where('created_at', '>', now()->subMinutes(10))

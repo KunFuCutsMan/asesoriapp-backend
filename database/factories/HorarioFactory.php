@@ -20,7 +20,7 @@ class HorarioFactory extends Factory
     {
         $hora = random_int(7, 20);
         return [
-            'horaInicio' => DateTimeImmutable::createFromFormat('H:i', sprintf('%02d:00', $hora)),
+            'horaInicio' => sprintf('%02d:00', $hora),
             'disponible' => $this->faker->boolean(),
             'diaSemanaID' => random_int(1, 5),
             'asesorID' => Asesor::factory(),

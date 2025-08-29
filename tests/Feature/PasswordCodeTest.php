@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Estudiante;
 use App\Models\PasswordCode;
 use App\Notifications\SendPasswordReset;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -74,6 +73,7 @@ class PasswordCodeTest extends TestCase
         // (Envia la solicitud del codigo)
 
         // Utiliza dicho codigo
+        $estudiante->refresh();
         $verifyPasswordCodeResponse = $this->post('api/v1/password/verify', [
             'numeroControl' => $estudiante->numeroControl,
             'numeroTelefono' => $estudiante->numeroTelefono,

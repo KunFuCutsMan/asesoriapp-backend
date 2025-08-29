@@ -96,7 +96,10 @@ class PasswordController extends Controller
     private function revisaCodigoDeUsuario(Estudiante $estudiante, string $code)
     {
         // Revisa si el codigo activo es el mismo enviado
-        $passwordCode = $estudiante->activePasswordCode;
+        $passwordCode = $estudiante->passwordCode()->where('used', false)
+            ->where('created_at', '>', now()->subMinutes(10))
+            ->latest()
+            ->first();
         if ($passwordCode == null) abort(404); // No se encontró
         if ($passwordCode->code != $code) abort(400); // Ese no es
         return $passwordCode;

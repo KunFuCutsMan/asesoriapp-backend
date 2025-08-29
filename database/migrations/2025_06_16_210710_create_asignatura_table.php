@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Carrera;
+use App\Models\Asignatura;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,10 +19,12 @@ return new class extends Migration
         });
 
         Schema::create('carrera_asignatura', function (Blueprint $table) {
-            $table->foreignId('carreraID')->references('id')->on('carrera');
-            $table->foreignId('asignaturaID')->references('id')->on('asignatura');
+            $table->id();
+            $table->foreignIdFor(Carrera::class, 'carreraID');
+            $table->foreignIdFor(Asignatura::class, 'asignaturaID');
             $table->tinyInteger('semestre', false, true);
-            $table->primary(['carreraID', 'asignaturaID']);
+            $table->unique(['carreraID', 'asignaturaID']);
+            // $table->primary(['carreraID', 'asignaturaID']);
         });
     }
 
@@ -32,6 +36,8 @@ return new class extends Migration
         Schema::table('carrera_asignatura', function (Blueprint $table) {
             $table->dropForeign(['carreraID']);
             $table->dropForeign(['asignaturaID']);
+            // $table->dropPrimary(['carreraID', 'asignaturaID']);
+            $table->dropUnique(['carreraID', 'asignaturaID']);
         });
 
         Schema::dropIfExists('carrera_asignatura');

@@ -23,9 +23,11 @@ return new class extends Migration
             $table->tinyInteger('estadoAsesoria')->comment('Estado actual de la asesoria. 0: No hecha, 1: En progreso, 2: Terminada, 3: Cancelada')->default(0);
 
             $table->foreignIdFor(Estudiante::class, 'estudianteID');
-            $table->foreignIdFor(Asesor::class, 'asesorID');
-            $table->foreignId('carreraID')->references('carreraID')->on('carrera_asignatura');
-            $table->foreignId('asignaturaID')->references('asignaturaID')->on('carrera_asignatura');
+            $table->foreignIdFor(Asesor::class, 'asesorID')->nullable();
+            $table->unsignedBigInteger('carreraID');
+            $table->unsignedBigInteger('asignaturaID');
+
+            $table->foreign(['carreraID', 'asignaturaID'])->references(['carreraID', 'asignaturaID'])->on('carrera_asignatura');
         });
     }
 
@@ -37,8 +39,7 @@ return new class extends Migration
         Schema::table('asesoria', function (Blueprint $table) {
             $table->dropForeignIdFor(Estudiante::class, 'estudianteID');
             $table->dropForeignIdFor(Asesor::class, 'asesorID');
-            $table->dropForeign(['carreraID']);
-            $table->dropForeign(['asignaturaID']);
+            $table->dropForeign(['carreraID', 'asignaturaID']);
         });
 
         Schema::dropIfExists('asesoria');

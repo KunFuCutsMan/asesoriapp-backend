@@ -36,10 +36,12 @@ class AsesoriaFactory extends Factory
             'estadoAsesoriaID' => Arr::random([1, 2, 3, 4]),
             'estudianteID' => Estudiante::factory(),
             'carreraID' => function (array $attributes) {
-                return Estudiante::find($attributes['estudianteID'])->carreraID;
+                $estudiante = Estudiante::find($attributes['estudianteID']);
+                return $estudiante->carrera;
             },
             'asignaturaID' => function (array $attributes) {
-                return Carrera::find($attributes['carreraID'])->asignaturas->random()->id;
+                $asignaturas = Carrera::find($attributes['carreraID'])->asignaturas;
+                return $asignaturas->random();
             },
             'asesorID' => function (array $attributes) {
                 if (AsesoriaEstado::find($attributes['estadoAsesoriaID'])->id === AsesoriaEstado::PENDIENTE)

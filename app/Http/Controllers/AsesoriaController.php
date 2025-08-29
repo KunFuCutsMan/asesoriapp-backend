@@ -178,7 +178,7 @@ class AsesoriaController extends Controller
     private function cambiaEstadoAsesoria(Request $request, int $asesoriaID): JsonResponse
     {
         $request->validate([
-            'estadoAsesoriaID' => 'required|numeric|integer|exists:asesoria-estados,id',
+            'estadoAsesoriaID' => 'required|numeric|integer|exists:asesoria_estados,id',
         ]);
 
         /** @var Asesoria */

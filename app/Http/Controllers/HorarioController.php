@@ -7,9 +7,9 @@ use App\Models\Asesor;
 use App\Models\DiaSemana;
 use App\Models\Horario;
 use App\Rules\OnlyHasHours;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Collection;
 
 class HorarioController extends Controller
 {
@@ -67,15 +67,21 @@ class HorarioController extends Controller
                 ->first();
 
             if ($horario != null) {
+                $hora = new Carbon($valor['hora']);
+
                 $horario->disponible = $valor['disponible'];
-                $horario->horaInicio = $valor['hora'];
+                $horario->horaInicio = $hora;
+                $horario->horaFinal = $hora->addHour();
                 $horario->diaSemanaID = $diaSemana->id;
 
                 $horario->push();
             } else {
+                $hora = new Carbon($valor['hora']);
+
                 $newHorario = new Horario();
                 $newHorario->disponible = $valor['disponible'];
-                $newHorario->horaInicio = $valor['hora'];
+                $newHorario->horaInicio = $hora;
+                $newHorario->horaFinal = $hora->addHour();
                 $newHorario->diaSemana()->associate($diaSemana);
 
                 $asesor->horarios()->save($newHorario);

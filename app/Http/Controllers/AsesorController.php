@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\AsesorDataResource;
 use App\Models\Asesor;
 use App\Models\Asignatura;
-use App\Models\Carrera;
 use App\Models\Horario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,10 +22,7 @@ class AsesorController extends Controller
     public function asesoresOfAsignatura(Request $request, int $asignaturaID): JsonResponse
     {
         /** @var Asignatura */
-        $asignatura = Asignatura::find($asignaturaID);
-        if (!$asignatura) {
-            abort(404);
-        }
+        $asignaturaAsesorada = Asignatura::findOrFail($asignaturaID);
 
         $request->validate([
             'diaSemanaID' => 'required|numeric|integer|exists:dias_semana,id',
@@ -41,46 +37,47 @@ class AsesorController extends Controller
             : null;
 
         $allAsesores = Asesor::with('estudiante')->get();
+        $allAsesoresDeEseDia = Asesor::with('estudiante')
+            ->whereRelation('horarios', 'diaSemanaID', $diaSemana)
+            ->get();
 
         // Obten los asesores que coincidan con el horario
-        $asesoresPorHorario = $allAsesores->filter(function (Asesor $asesor) use ($horaInicio, $horaFinal, $diaSemana) {
-            $horariosDeEseDia = collect($asesor->horarios->where('diaSemanaID', $diaSemana));
+        $asesoresPorHorario = $allAsesoresDeEseDia->filter(function (Asesor $asesor) use ($horaInicio, $horaFinal) {
+            return $asesor->horarios->contains(function (Horario $horario) use ($horaInicio, $horaFinal) {
+                $horaHorario = Carbon::createFromFormat('H:i', $horario->horaInicio);
 
-            if ($horariosDeEseDia->count() == 0)
-                return false; // No esta libre ese dia
-
-            $esIdeal = $horariosDeEseDia->contains(function (Horario $horario) use ($horaInicio, $horaFinal) {
-                $hora = Carbon::createFromFormat('H:i', $horario->horaInicio);
-                $horaCoincide = $horaInicio->diffInHours($hora) == 0;
-                $pasadaDeHoraFinal = $horaFinal?->diffInHours($hora) == -1 ?? false;
+                $horaCoincide = $horaInicio->diffInHours($horaHorario) == 0;
+                $pasadaDeHoraInicial = $horaInicio->diffInHours($horaHorario) > 0;
+                $pasadaDeHoraFinal = $horaFinal?->diffInHours($horaHorario) == -1 ?? false;
                 $esDisponible = boolval($horario->disponible);
 
-                if ($horaFinal != null) // La hora final es exactamente la final que la anterior, y hay posibilidad que hay horas anteriores
-                    return $pasadaDeHoraFinal && $horaInicio->diffInHours($hora) > 0;
-
-                return $esDisponible && $horaCoincide;
+                return $horaFinal != null
+                    ? $pasadaDeHoraInicial && $pasadaDeHoraFinal
+                    : $esDisponible && $horaCoincide;
             });
-
-            return $esIdeal;
         });
 
         // Obten los asesores que coincidan con la asignatura
-        $asesoresDeMateria = $allAsesores->filter(function (Asesor $asesor) use ($asignaturaID) {
-            return collect($asesor->asignaturas)->contains(function (Asignatura $asignatura) use ($asignaturaID) {
-                return $asignatura->id == $asignaturaID;
-            });
-        });
+        $asesoresDeMateria = $asignaturaAsesorada->asesores;
 
+        // Los asesores ideales son aquellos donde coincida su horario, e impartan la asignatura
         $asesoresIdeales = $asesoresDeMateria->intersect($asesoresPorHorario);
+
+        // Los asesores por asignatura son aquellos si pueden impartir la asignatura,
+        // pero el horario en donde la pueden dar no es la misma
         $asesoresPorAsignatura = $asesoresDeMateria->diff($asesoresIdeales);
 
-        $asesoresNoIdeales = $allAsesores->diff($asesoresDeMateria)->diff($asesoresPorHorario);
-        $asesoresDeCarrera = $asesoresNoIdeales->filter(function (Asesor $asesor) use ($asignatura) {
-            return $asesor->asignaturas->contains(function (Asignatura $asig) use ($asignatura) {
-                return $asig->carreraID == $asignatura->carreraID;
-            });
+        $asesoresNoIdeales = $allAsesores
+            ->diff($asesoresDeMateria)
+            ->diff($asesoresPorHorario);
+
+        // Los asesores de carrera son aquellos que no cumplen las condiciones anteriores,
+        // Pero la carrera que cursan tiene dicha asignatura
+        $asesoresDeCarrera = $asesoresNoIdeales->filter(function (Asesor $asesor) use ($asignaturaAsesorada) {
+            return collect($asignaturaAsesorada->carreras)->contains('id', $asesor->estudiante->carreraID);
         });
 
+        // Todos los asesores que no tienen nada que ver se consideran como otros asesores
         $otrosAsesores = $asesoresNoIdeales->diff($asesoresDeCarrera);
 
         return response()->json([

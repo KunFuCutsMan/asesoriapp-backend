@@ -76,8 +76,8 @@ class AsesorController extends Controller
 
         $asesoresNoIdeales = $allAsesores->diff($asesoresDeMateria)->diff($asesoresPorHorario);
         $asesoresDeCarrera = $asesoresNoIdeales->filter(function (Asesor $asesor) use ($asignatura) {
-            return collect($asignatura->carreras)->contains(function (Carrera $carrera) use ($asesor) {
-                return $asesor->estudiante->carreraID == $carrera->id;
+            return $asesor->asignaturas->contains(function (Asignatura $asig) use ($asignatura) {
+                return $asig->carreraID == $asignatura->carreraID;
             });
         });
 

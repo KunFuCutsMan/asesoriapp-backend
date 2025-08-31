@@ -6,7 +6,6 @@ use App\Models\Asesor;
 use App\Models\Estudiante;
 use App\Models\Asignatura;
 use App\Models\Horario;
-use DateTimeImmutable;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -61,31 +60,36 @@ class AsesorControllerTest extends TestCase
         Asesor::factory(2)
             ->hasAttached($asignatura, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $asesor->horarios()->save(Horario::factory()
+                Horario::factory()
                     ->state([
                         'horaInicio' => '10:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
-                    ->create());
+                    ->recycle($asesor)
+                    ->create();
             })
             ->create();
 
         Asesor::factory(8)
             ->hasAttached($asignatura, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $asesor->horarios()->save(Horario::factory()
+                Horario::factory()
                     ->state([
                         'horaInicio' => '09:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
-                    ])->create());
+                    ])
+                    ->recycle($asesor)
+                    ->create();
             })
             ->create();
 
         Asesor::factory(10)
             ->hasAttached($otrasAsignturas->random(3), [], 'asignaturas')
             ->create();
+
+        $this->assertDatabaseCount('asesor', 20);
 
         $estudiante = Estudiante::factory()->create();
         Sanctum::actingAs($estudiante);
@@ -152,18 +156,22 @@ class AsesorControllerTest extends TestCase
         Asesor::factory()
             ->hasAttached($calculoDif, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $asesor->horarios()->saveMany([
-                    Horario::factory()->state([
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '10:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
-                    ])->create(),
-                    Horario::factory()->state([
+                    ])
+                    ->recycle($asesor)
+                    ->create();
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '11:00',
                         'disponible' => false,
                         'diaSemanaID' => 1,
-                    ])->create()
-                ]);
+                    ])
+                    ->recycle($asesor)
+                    ->create();
             })
             ->create();
 
@@ -171,37 +179,45 @@ class AsesorControllerTest extends TestCase
         Asesor::factory()
             ->hasAttached($calculoDif, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $asesor->horarios()->save(
-                    Horario::factory()->state([
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '10:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
-                    ])->create()
-                );
+                    ])
+                    ->recycle($asesor)
+                    ->create();
             })
             ->create();
 
         // Otros asesores sin la hora, pero si tiene la asignatura
-        Asesor::factory()
+        Asesor::factory(8)
             ->hasAttached($calculoDif, [], 'asignaturas')
             ->afterCreating(function (Asesor $asesor) {
-                $asesor->horarios()->saveMany([
-                    Horario::factory()->state([
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '9:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
-                    ])->create(),
-                    Horario::factory()->state([
+                    ])
+                    ->recycle($asesor)
+                    ->create();
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '10:00',
                         'disponible' => false,
                         'diaSemanaID' => 1,
-                    ])->create(),
-                    Horario::factory()->state([
+                    ])
+                    ->recycle($asesor)
+                    ->create();
+                Horario::factory()
+                    ->state([
                         'horaInicio' => '11:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
-                    ])->create()
-                ]);
+                    ])
+                    ->recycle($asesor)
+                    ->create();
             })
             ->create();
 
@@ -210,6 +226,7 @@ class AsesorControllerTest extends TestCase
             ->hasAttached($otrasAsignturas->random(3), [], 'asignaturas')
             ->create();
 
+        $this->assertDatabaseCount('asesor', 20);
 
         Sanctum::actingAs(Estudiante::factory()->create());
         $response = $this->get('api/v1/asesor/of-asignatura/46?diaSemanaID=1&horaInicio=10:00&horaFinal=11:00');

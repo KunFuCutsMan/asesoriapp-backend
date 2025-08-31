@@ -42,19 +42,10 @@ class AsesorController extends Controller
             ->get();
 
         // Obten los asesores que coincidan con el horario
-        $asesoresPorHorario = $allAsesoresDeEseDia->filter(function (Asesor $asesor) use ($horaInicio, $horaFinal) {
-            return $asesor->horarios->contains(function (Horario $horario) use ($horaInicio, $horaFinal) {
-                $horaHorario = Carbon::createFromFormat('H:i', $horario->horaInicio);
-
-                $horaCoincide = $horaInicio->diffInHours($horaHorario) == 0;
-                $pasadaDeHoraInicial = $horaInicio->diffInHours($horaHorario) > 0;
-                $pasadaDeHoraFinal = $horaFinal?->diffInHours($horaHorario) == -1 ?? false;
-                $esDisponible = boolval($horario->disponible);
-
-                return $horaFinal != null
-                    ? $pasadaDeHoraInicial && $pasadaDeHoraFinal
-                    : $esDisponible && $horaCoincide;
-            });
+        $asesoresPorHorario = $allAsesoresDeEseDia->filter(function (Asesor $asesor) use ($diaSemana, $horaInicio, $horaFinal) {
+            return $horaFinal != null
+                ? $this->asesorDisponibleAcordeHoraInicialYFinal($asesor, $diaSemana, $horaInicio, $horaFinal)
+                : $this->asesorDisponibleAcordeHoraInicial($asesor, $diaSemana, $horaInicio);
         });
 
         // Obten los asesores que coincidan con la asignatura
@@ -88,5 +79,46 @@ class AsesorController extends Controller
                 'otros' => AsesorDataResource::collection($otrosAsesores),
             ]
         ]);
+    }
+
+    /**
+     * Determina si un `asesor` se encuentra disponible, dados las `horaInicio` y `horaFinal` dadas
+     * 
+     * El asesor se filtra si:
+     * - En el rango [$horaInicio, $horaFinal) todas las horas se encuentren marcadas como disponibles
+     *
+     * */
+    private function asesorDisponibleAcordeHoraInicialYFinal(Asesor $asesor, int $diaSemanaID, Carbon $horaInicio, ?Carbon $horaFinal = null): bool
+    {
+        $horariosDelDia = collect($asesor->horarios)->where('diaSemanaID', $diaSemanaID)->sortBy('horaInicio');
+        if ($horariosDelDia->isEmpty()) {
+            return false; // Definitivamente no esta disponible ese dia
+        }
+
+        $horariosIncluyentesInicio = $horariosDelDia->where('horaInicio', '>=', $horaInicio)->where('disponible', 1);
+        $horariosExcluyentesFinal = $horariosDelDia->where('horaFinal', '<', $horaFinal)->where('disponible', 1);
+        $rangoDeHorarios = $horariosIncluyentesInicio->intersect($horariosExcluyentesFinal);
+
+        // Por alguna razon, los asesores que se necesitan son aquellos cuyas
+        // $horariosIncluyentesInicio y $horariosExcluyentesFinal no tienen elementos en comun
+        // No se porque es asi pero bueno
+        return $rangoDeHorarios->isEmpty();
+    }
+
+    /**
+     * Determina si un `asesor` se encuentra disponible, dada la `horaInicio` dada
+     * 
+     * El asesor se filtra si:
+     * - $horaInicio es la misma que horario->horaInicio
+     * - horario->disponible es verdadero
+     */
+    private function asesorDisponibleAcordeHoraInicial(Asesor $asesor, int $diaSemanaID, Carbon $horaInicio): bool
+    {
+        return collect($asesor->horarios)
+            ->where('diaSemanaID', $diaSemanaID)
+            ->contains(function (Horario $horario) use ($horaInicio) {
+                $hora = Carbon::createFromFormat('H:i', $horario->horaInicio);
+                return boolval($horario->disponible) && $horaInicio->diffInHours($hora) == 0;
+            });
     }
 }

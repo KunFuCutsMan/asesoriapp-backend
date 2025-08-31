@@ -64,6 +64,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '10:00',
+                        'horaFinal' => '11:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
@@ -78,6 +79,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '09:00',
+                        'horaFinal' => '10:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
@@ -191,6 +193,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '10:00',
+                        'horaFinal' => '11:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
@@ -199,6 +202,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '11:00',
+                        'horaFinal' => '12:00',
                         'disponible' => false,
                         'diaSemanaID' => 1,
                     ])
@@ -214,6 +218,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '10:00',
+                        'horaFinal' => '11:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
@@ -229,6 +234,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '9:00',
+                        'horaFinal' => '10:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])
@@ -237,6 +243,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '10:00',
+                        'horaFinal' => '11:00',
                         'disponible' => false,
                         'diaSemanaID' => 1,
                     ])
@@ -245,6 +252,7 @@ class AsesorControllerTest extends TestCase
                 Horario::factory()
                     ->state([
                         'horaInicio' => '11:00',
+                        'horaFinal' => '12:00',
                         'disponible' => true,
                         'diaSemanaID' => 1,
                     ])

@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Asesor;
-use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +20,7 @@ class HorarioFactory extends Factory
         $hora = random_int(7, 20);
         return [
             'horaInicio' => sprintf('%02d:00', $hora),
+            'horaFinal' => sprintf('%02d:00', $hora + 1),
             'disponible' => $this->faker->boolean(),
             'diaSemanaID' => random_int(1, 5),
             'asesorID' => Asesor::factory(),

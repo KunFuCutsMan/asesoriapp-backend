@@ -1,61 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AsesoriAPP - Servidor
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+La aplicación para regular asesorías en el Instituto Tecnológico de Veracruz
 
-## About Laravel
+Este repositorio maneja el servidor utilizado para manejar el servicio
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [AsesoriAPP - Servidor](#asesoriapp---servidor)
+  - [Acerca de](#acerca-de)
+  - [Getting started](#getting-started)
+    - [Prerequisitos](#prerequisitos)
+    - [Instalación](#instalación)
+  - [Uso](#uso)
+    - [Pruebas](#pruebas)
+  - [Contribución](#contribución)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Acerca de
 
-## Learning Laravel
+En el Instituto Tecnológico de Veracruz (ITV) el **Programa de Asesorías De Ingenierías Eléctrica, Electrónica y Renovables (PADIEER)** tiene el propósito de ayudar a los estudiantes de las carreras de ingenierías de las áreas Eléctrica-Electrónica en las materias que cursan en sus carreras, además de proveer ayuda a otros estudiantes pertenicientes de otras áreas.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Durante años se manejaban registros en papel, y a medida que se ha expandido el programa, la necesidad de reorganizar el manejo de información ha sido cada vez más aparente.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**AsesoriAPP** es una aplicación móvil que busca reducir el tiempo que un estudiante toma en pedir una asesoría del programa, designar un asesor apropiado para este, y coordinar el tiempo de ambos para encontrar el horario perfecto para la asesoría.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Este repositorio contiene el código responsable de manejar con las peticiones de los estudiantes y asesores, y conectarse con la base de datos responsable de los datos de las asesorías. El código de la aplicación móvil en sí se encuentra en [este repositorio](https://github.com/KunFuCutsMan/asesoriapp).
 
-## Laravel Sponsors
+## Getting started
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Este proyecto utiliza PHP y el framework Laravel para funcionar, por lo que la mayoría de la estructura de este repositorio sigue las prácticas descritas en la documentación de Laravel.
 
-### Premium Partners
+Puedes aprender más acerca del framework en [su documentación](https://laravel.com/docs/12.x).
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prerequisitos
 
-## Contributing
+**[Instalar Laravel y PHP](https://laravel.com/docs/12.x/installation#creating-a-laravel-project):** Se recomienda seguir el tutorial establecido en la documentación de Laravel en caso que no tengas el interpretador de PHP y Composer.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Este proyecto utiliza las siguientes versiones:
+* PHP **>=8.4**
+* Laravel **12.x**
 
-## Code of Conduct
+Si se desea correr el servidor localmente se requiere además de un servidor SQL, cuyas conexiones se pueden ver en el [archivo .env de ejemplo](./.env.example).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Instalación
 
-## Security Vulnerabilities
+Para instalar las dependencias necesarias en el repositorio, solo necesitar correr este comando (asumiendo que tienes Composer):
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer install
+```
 
-## License
+¡No se te olvide copiar tus variables! Un ejemplo de las variables de entorno se puede encontrar en [.env.example](./.env.example).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Uso
+
+Puedes correr el servidor localmente mediante el comando
+
+```bash
+php artisan serve
+```
+
+Y el puerto del servidor se abrirá en `:8000`.
+
+Hay que tener en cuenta que la única URL que será accesible es aquella dentro del camino `/api`.
+
+Otros comandos se pueden encontrar mediante la línea de comandos Artisan, como parte del framework Laravel. Más información sobre que comandos existen se puede encontrar con el comando:
+
+```bash
+php artisan list
+```
+
+### Pruebas
+
+Para facilitar el desarrollo del servidor sin tener que destruir tus bases de datos al hacerlo, es mejor utilizar la funcionalidad de pruebas de Laravel. Más información se puede encontrar en [su documentación](https://laravel.com/docs/12.x/testing). Este repositorio utiliza [PHPUnit](https://phpunit.de/).
+
+```
+php artisan test [./ruta/a/pruebas]
+```
+
+Las pruebas utilizan un servidor local de [SQLite3](https://sqlite.org/) para funcionar, ubicado en `database/database.sqlite`. Si no encuentras este archivo simplemente créalo antes de correr las pruebas.
+
+## Contribución
+
+Debido a que este es un proyecto interno para el Instituto Tecnológico de Veracruz, **solo se aceptarán contribuciones de gente perteneciente al instituto.** ¡Contacta a los administradores del repositorio si quieres contribuir a este proyecto! 
